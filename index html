@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AlphaBet: The Rapid Fire Challenge</title>
+    <style>
+        :root {
+            --primary: #4f46e5;
+            --primary-hover: #4338ca;
+            --secondary: #06b6d4;
+            --dark: #0f172a;
+            --light: #f8fafc;
+            --danger: #ef4444;
+            --success: #22c55e;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: var(--dark);
+            color: var(--light);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .game-container {
+            background-color: #1e293b;
+            width: 100%;
+            max-width: 600px;
+            border-radius: 16px;
+            padding: 30px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+            text-align: center;
+            border: 1px solid #334155;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 20px;
+            color: #fff;
+            letter-spacing: 1px;
+        }
+
+        h1 span {
+            color: var(--secondary);
+        }
+
+        .screen {
+            display: none;
+        }
+
+        .screen.active {
+            display: block;
+        }
+
+        .btn {
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            padding: 14px 28px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            margin: 10px;
+            display: inline-block;
+        }
+
+        .btn:hover {
+            background-color: var(--primary-hover);
+            transform: translateY(-2px);
+        }
+
+        .btn-danger { background-color: var(--danger); }
+        .btn-danger:hover { background-color: #dc2626; }
+        .btn-success { background-color: var(--success); }
+        .btn-success:hover { background-color: #16a34a; }
+
+        .letter-display {
+            font-size: 8rem;
+            font-weight: 900;
+            color: var(--secondary);
+            margin: 20px 0;
+            text-shadow: 0 0 20px rgba(6, 182, 212, 0.3);
+            animation: popIn 0.3s ease;
+        }
+
+        @keyframes popIn {
+            0% { transform: scale(0.8); opacity: 0; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        .status-text {
+            font-size: 1.2rem;
+            margin-bottom: 20px;
+            color: #94a3b8;
+        }
+
+        .game-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #334155;
+        }
+
+        .timer {
+            font-size: 1.5rem;
+            font-weight: 700;
+            background-color: #334155;
+            padding: 5px 15px;
+            border-radius: 20px;
+            color: #f59e0b;
+        }
+
+        .score {
+            font-size: 1.2rem;
+            font-weight: 600;
+        }
+
+        .question-box {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin: 40px 0;
+            min-height: 80px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            line-height: 1.4;
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+        }
+
+        .answer-input {
+            width: 100%;
+            padding: 16px;
+            font-size: 1.3rem;
+            border-radius: 8px;
+            border: 2px solid #334155;
+            background-color: #0f172a;
+            color: white;
+            text-align: center;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        .answer-input:focus {
+            border-color: var(--secondary);
+        }
+
+        .hint {
+            font-size: 0.9rem;
+            color: #64748b;
+            margin-top: 8px;
+        }
+
+        .review-list {
+            text-align: left;
+            max-height: 300px;
+            overflow-y: auto;
+            margin: 20px 0;
+            padding: 10px;
+            background-color: #0f172a;
+            border-radius: 8px;
+        }
+
+        .review-item {
+            padding: 8px 12px;
+            border-bottom: 1px solid #1e293b;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .review-item:last-child { border: none; }
+        .txt-success { color: var(--success); }
+        .txt-danger { color: var(--danger); }
+    </style>
+</head>
+<body>
+
+    <div class="game-container">
+        <!-- SCREEN 1: START SCREEN -->
+        <div id="start-screen" class="screen active">
+            <h1>Alpha<span>Bet</span></h1>
+            <p class="status-text">Test your vocabulary under extreme pressure. Get a letter, accept or gamble it, then answer as many rapid-fire questions as you can in 60 seconds.</p>
+            <button class="btn" onclick="initiateLetterSelection()">Start Game</button>
+        </div>
+
+        <!-- SCREEN 2: LETTER DECISION SCREEN -->
+        <div id="decision-screen" class="screen">
+            <h2 id="decision-title">Your Letter Is...</h2>
+            <div id="current-letter" class="letter-display">A</div>
+            <p id="decision-status" class="status-text">Will you keep it or gamble for a new one?</p>
+            <div id="decision-buttons">
+                <button class="btn btn-success" onclick="acceptLetter()">Accept</button>
+                <button class="btn btn-danger" id="reject-btn" onclick="rejectLetter()">Reject & Swap</button>
+            </div>
+        </div>
+
+        <!-- SCREEN 3: GAMEPLAY SCREEN -->
+        <div id="game-screen" class="screen">
+            <div class="game-header">
+                <div class="score">Score: <span id="live-score" class="txt-success">0</span></div>
+                <div class="score">Letter: <span id="active-letter" style="color:var(--secondary)">A</span></div>
+                <div class="timer" id="timer-display">60s</div>
+            </div>
+            <div class="question-box" id="question-display">Loading question...</div>
+            <div class="input-group">
+                <input type="text" id="answer-field" class="answer-input" placeholder="Type answer here..." autocomplete="off">
+                <div class="hint">Press <strong>Enter</strong> to submit. Leave blank and press Enter to <strong>Skip</strong>.</div>
+            </div>
+        </div>
+
+        <!-- SCREEN 4: GAME OVER SCREEN -->
+        <div id="game-over-screen" class="screen">
+            <h1>Game Over!</h1>
+            <p class="status-text">You played with the letter <strong id="final-letter" style="color:var(--secondary)">-</strong></p>
+            <div style="font-size: 2rem; font-weight: bold; margin: 20px 0;">
+                Final Score: <span id="final-score" class="txt-success">0</span>
+            </div>
+            <h3>Your Answers:</h3>
+            <div class="review-list" id="review-container"></div>
+            <button class="btn" onclick="restartGame()">Play Again</button>
+        </div>
+    </div>
+
+    <script>
+        // --- DATA BANK: 500+ UNIQUE QUESTIONS ---
+        const questionBank = [
+            "A type of fruit", "A country in Europe", "An item found in a kitchen", "A profession or job", "A cold-blooded animal",
+            "Something you wear on your feet", "A capital city", "A musical instrument", "Something found in space", "A color",
+            "A language spoken somewhere in the world", "An ocean or sea", "A popular boy's name", "A popular girl's name", "A type of flower",
+            "A wild animal", "A domestic pet", "Something you find at a beach", "A school subject", "A type of vehicle",
+            "Something found in a bathroom", "An element on the periodic table", "A sport or physical game", "A piece of furniture", "A tool found in a garage",
+            "A reason for being late", "Something soft", "Something hot", "Something cold", "A spice or herb",
+            "A sharp object", "Something made of wood", "Something transparent", "A bird species", "An insect",
+            "A clothing brand", "A country in Asia", "A country in Africa", "A U.S. State", "Something you see in a hospital",
+            "A weapon", "A gemstone or crystal", "A type of tree", "Something rectangular", "Something spherical",
+            "A cartoon character", "A historical figure", "A type of fabric or textile", "A computer component", "A reason to celebrate",
+            "Something that smells good", "Something that smells bad", "An outdoor hobby", "An indoor hobby", "A mythical creature",
+            "A type of dance", "A beverage or drink", "A breakfast food", "A dessert or sweet treat", "A green vegetable",
+            "A body part", "An internal organ", "A unit of measurement", "A type of metal", "Something associated with Halloween",
+            "Something associated with Christmas", "A weather condition", "A natural disaster", "A shape", "A type of currency",
+            "Something you turn on with a switch", "A type of snake", "Something found in a library", "A type of footwear", "A dinosaur",
+            "A liquid", "A gas", "A solid", "Something that floats", "Something that sinks",
+            "A type of nut", "A grain or cereal crop", "A seafood item", "A fast food chain", "A superhero",
+            "A supervillain", "An architectural feature", "A type of boat or ship", "Something you find in a wallet", "A type of candy",
+            "A dangerous hobby", "A farm animal", "Something found in a forest", "Something found in a desert", "A type of crime",
+            "A standard school supply", "A component of a car", "A type of hat", "A famous landmark", "A dog breed",
+            "A cat breed", "Something you do at the gym", "A major world river", "A mountain or mountain range", "A type of shoes",
+            "Something with a screen", "A piece of luggage or bag", "A type of pasta", "A pizza topping", "An ingredient in a cake",
+            "A winter sport", "A summer sport", "Something you pack for a vacation", "An office supply", "A type of cheese",
+            "A fish species", "Something made of plastic", "Something made of glass", "Something made of metal", "A command you give a dog",
+            "A type of dwelling or house", "A cosmetic or makeup item", "Something you find in a garden", "A broad human emotion", "A bad habit",
+            "A good habit", "Something that makes noise", "Something completely silent", "A type of terrain", "A tourist destination",
+            "A board game", "A card game", "A video game title", "A classic book title", "A movie genre",
+            "A music genre", "Something you find in a bedroom", "Something you find in a living room", "A cleaning supply", "A type of tool",
+            "Something sticky", "Something slippery", "Something rough to the touch", "Something smooth to the touch", "A type of medicine",
+            "A medical condition or disease", "A symptom of a cold", "An insect that bites or stings", "A nocturnal animal", "A bird that cannot fly",
+            "A mammal that lives in the ocean", "A type of shellfish", "Something you plug into a wall", "A wireless technology", "A social media platform",
+            "A web browser", "A programming language", "Something you write with", "Something you write on", "A type of sensory experience",
+            "A reason to smile", "A reason to cry", "Something you do when you are angry", "A collective noun for animals", "A type of monkey or ape",
+            "A constellation", "A planet or celestial body", "Something you do in the morning", "Something you do right before bed", "A type of soup",
+            "A salad ingredient", "A type of sandwich", "A condiment or sauce", "Something found in a vending machine", "A type of coin or paper money",
+            "A type of line (geometry)", "A mathematical term", "A scientific instrument", "An ancient civilization", "A famous king or queen",
+            "A title of nobility", "A type of government system", "An economic term", "A type of weather front", "A cloud type",
+            "Something associated with the ocean", "Something associated with rivers", "Something associated with fire", "Something associated with wind", "Something associated with earth",
+            "A prehistoric tool", "A method of cooking", "A kitchen appliance", "A piece of table silverware", "A type of glass drinkware",
+            "A routine household chore", "A gardening tool", "A type of fertilizer or soil", "A pest found in houses", "Something that rots",
+            "Something that rusts", "Something that evaporates", "A property of water", "A type of biological cell", "A human hormone",
+            "A muscle in the human body", "A bone in the human body", "A type of doctor or specialist", "A medical procedure", "An emergency vehicle",
+            "Something found at a construction site", "A building material", "A type of roofing material", "A flooring type", "A paint color variation",
+            "A style of art", "A famous painter", "A musical term for speed", "A musical note or dynamic mark", "A brass instrument",
+            "A woodwind instrument", "A percussion instrument", "A stringed instrument", "A type of poem", "A literary device",
+            "A punctuation mark", "A part of speech", "A type of sentence", "A foreign phrase used in English", "A mythological god or goddess",
+            "A legendary city or place", "A monster from folklore", "A magical item", "A type of wizard or spellcaster", "A planet in our solar system",
+            "A moon of any planet", "A space mission or satellite", "An astronautical term", "A type of telescope", "A hobby involving collections",
+            "A craft hobby", "A textile art", "A type of yarn or thread", "A sewing tool", "A knot type",
+            "A type of measurement unit for weight", "A unit for distance", "A unit for volume", "A unit for electricity", "A unit for temperature",
+            "A type of angle", "A polygon shape", "A 3D geometric solid", "A term used in calculus or algebra", "A statistical term",
+            "A type of graph or chart", "A method of data collection", "A psychological term", "A human personality trait", "A defensive mechanism (psychology)",
+            "A type of phobia", "An optical illusion type", "A sleep-related phenomenon", "A type of dream element", "A sensory organ",
+            "A taste profile", "A type of smell category", "A sound frequency descriptor", "A type of lighting", "A source of renewable energy",
+            "A source of non-renewable energy", "A pollutant", "An eco-friendly practice", "A type of ecosystem", "A biome type",
+            "A desert plant", "A wetland animal", "A tundra dweller", "A rainforest predator", "A deep-sea creature",
+            "A coral reef inhabitant", "A type of algae or seaweed", "A fungus or mushroom type", "A type of bacteria", "A viral disease",
+            "A vaccination type", "A type of medication format (e.g., pill)", "A first aid item", "A component of blood", "A type of blood vessel",
+            "A layer of the skin", "A hair accessory", "A type of clothing pattern", "A style of dress", "A type of jacket or coat",
+            "A sleeve style", "A neck line style", "A shoe component", "A leather alternative", "A jewelry item",
+            "A piercing location", "A type of earring", "A necklace style", "A ring type", "A watch component",
+            "A timekeeping device", "A calendar system", "A month of the year", "A day of the week", "A season indicator",
+            "A holiday celebrated in spring", "A holiday celebrated in autumn", "A festival type", "A cultural ritual", "A type of dance performance",
+            "A theatrical term", "A part of a stage", "A lighting fixture in theater", "A type of script document", "A movie studio",
+            "A television network", "A streaming service", "A broadcast medium", "A audio equipment piece", "A microphone type",
+            "A camera accessory", "A photography style", "A type of lens", "An exposure setting", "A print medium",
+            "A journalistic term", "A newspaper section", "A magazine category", "A comic book term", "A type of paper stock",
+            "A binding method for books", "A library classification system", "A genre of fiction", "A non-fiction subgenre", "A biographical subject area",
+            "A philosophical movement", "A famous philosopher", "A logic term", "An ethical concept", "A political ideology",
+            "A structure in a city", "A municipal department", "A public service", "A emergency protocol", "A traffic control device",
+            "A type of road or highway", "A bridge design type", "A tunnel location", "A method of rail transport", "A train component",
+            "A aviation term", "An aircraft type", "An airport area", "A flight maneuver", "A nautical maneuver",
+            "A part of a sailboat", "A type of commercial ship", "A harbor structure", "A navigation tool", "A map feature",
+            "A cartographic term", "A land survey tool", "A type of rock or stone", "A mineral type", "A geological era",
+            "A fossil type", "A volcanic feature", "An earthquake term", "A plate tectonics term", "A mountain building process",
+            "A type of valley", "A river feature (e.g., waterfall)", "A coastal feature", "An island type", "A reef structure",
+            "A current in the ocean", "A wave property", "A wind pattern", "A climate zone", "A weather forecasting tool",
+            "A atmospheric gas", "A layer of the atmosphere", "A space phenomenon", "A solar feature", "A stellar evolution stage",
+            "A type of galaxy", "A cosmological theory", "A physics force", "A type of energy transformation", "A thermodynamic law term",
+            "A particle in an atom", "A quantum mechanics term", "A chemical bond type", "A chemical reaction type", "An acid or base example",
+            "A laboratory glassware item", "A safety equipment in labs", "A chemical element category", "A hydrocarbon type", "A polymer material",
+            "A type of plastic recycling code", "A manufacturing process", "An industrial machine", "A factory role", "A supply chain step",
+            "A retail term", "A type of shop or store", "A marketing strategy", "An advertising medium", "A consumer behavior term",
+            "A financial asset", "A banking term", "A type of tax", "An investment vehicle", "A stock market term",
+            "A real estate term", "A insurance type", "A legal document", "A courtroom role", "A type of law practice",
+            "A constitutional right", "A international treaty", "A diplomatic rank", "A government office", "A voting system term",
+            "A military rank", "A military vehicle", "A defensive fortification", "A strategy term", "A combat sport",
+            "A martial arts style", "A weapon category", "A target shooting sport", "An Olympic event", "A track and field event",
+            "A gymnastics apparatus", "A swimming stroke", "A water sport vessel", "A winter sport equipment", "A team sport ball",
+            "A game played on a court", "A game played on a field", "An indoor table game", "A target game", "A card suit or rank",
+            "A chess piece", "A dice game term", "A puzzle type", "A toy category", "A playground fixture",
+            "A childhood game", "A parenting term", "A family relationship", "A milestone celebration", "A wedding anniversary gift material",
+            "A cooking ingredient that thickens", "A baking leavening agent", "A sweetening agent", "A cooking oil source", "A dairy product alternative",
+            "A p
