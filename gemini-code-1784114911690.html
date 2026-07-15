@@ -1,0 +1,663 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>ALPHABET: ARCADE BLITZ ORAL</title>
+    <style>
+        :root {
+            --bg: #03030c;
+            --card-bg: #0d0d21;
+            --neon-pink: #ff007f;
+            --neon-blue: #00ffff;
+            --neon-green: #39ff14;
+            --neon-yellow: #ffdf00;
+            --text: #ffffff;
+            --text-muted: #65758d;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Impact', 'Arial Black', -apple-system, sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            background-color: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 10px;
+            overflow: hidden;
+            position: fixed;
+            width: 100%;
+        }
+
+        .game-card {
+            background: var(--card-bg);
+            width: 100%;
+            max-width: 440px;
+            height: 92vh;
+            border-radius: 30px;
+            padding: 24px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            box-shadow: 0 0 30px rgba(0, 240, 255, 0.25), inset 0 0 15px rgba(255, 0, 127, 0.2);
+            border: 3px solid #1a1a3a;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .screen {
+            display: none;
+            flex-direction: column;
+            height: 100%;
+            justify-content: space-between;
+            width: 100%;
+        }
+
+        .screen.active {
+            display: flex;
+        }
+
+        h1 {
+            font-size: 4.2rem;
+            text-align: center;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: var(--text);
+            line-height: 0.9;
+            margin-top: 10px;
+            transform: rotate(-2deg);
+            animation: pulseGlow 1.5s infinite alternate;
+        }
+
+        h1 span {
+            color: var(--neon-pink);
+            text-shadow: 0 0 20px var(--neon-pink);
+        }
+
+        .section-label {
+            color: var(--neon-blue);
+            font-size: 1.2rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 8px;
+            text-align: center;
+        }
+
+        .time-grid {
+            display: flex;
+            gap: 10px;
+            width: 100%;
+            margin-bottom: 15px;
+        }
+
+        .time-btn {
+            flex: 1;
+            padding: 12px;
+            font-size: 1.2rem;
+            font-weight: 900;
+            background: #151535;
+            border: 3px solid #2a2a5a;
+            color: var(--text);
+            border-radius: 14px;
+            cursor: pointer;
+            text-transform: uppercase;
+            transition: all 0.1s ease;
+        }
+
+        .time-btn.selected {
+            background: var(--neon-blue);
+            color: #000;
+            border-color: #fff;
+            box-shadow: 0 0 15px rgba(0, 240, 255, 0.4);
+        }
+
+        .letter-hero {
+            font-size: 12rem;
+            color: var(--neon-blue);
+            text-shadow: 0 0 40px var(--neon-blue), 0 0 70px var(--neon-blue);
+            text-align: center;
+            line-height: 0.8;
+            margin: auto 0;
+            animation: bounceIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .btn-stack {
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+            width: 100%;
+        }
+
+        .btn-row {
+            display: flex;
+            gap: 12px;
+            width: 100%;
+        }
+
+        .action-btn {
+            width: 100%;
+            padding: 20px;
+            font-size: 1.6rem;
+            font-weight: 900;
+            border: none;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: transform 0.1s ease;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 6px 0 #000;
+        }
+
+        .action-btn:active {
+            transform: translateY(3px);
+            box-shadow: 0 3px 0 #000;
+        }
+
+        /* Giant Scoring Pads for Oral Gameplay */
+        .score-pad {
+            height: 18vh;
+            font-size: 2.2rem;
+            letter-spacing: 2px;
+            border-radius: 24px;
+            box-shadow: 0 8px 0 #000;
+        }
+
+        .score-pad:active {
+            transform: translateY(4px);
+            box-shadow: 0 4px 0 #000;
+        }
+
+        .btn-neon-pink { background: var(--neon-pink); color: #fff; text-shadow: 0 2px 4px rgba(0,0,0,0.5); }
+        .btn-neon-blue { background: var(--neon-blue); color: #000; }
+        .btn-neon-green { background: var(--neon-green); color: #000; text-shadow: 0 1px 2px rgba(255,255,255,0.6); }
+        .btn-outline { background: #151535; border: 3px solid #2a2a5a; color: var(--text); }
+
+        .hud {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-bottom: 12px;
+            border-bottom: 3px dashed #2a2a5a;
+        }
+
+        .hud-stat {
+            font-size: 1.3rem;
+            text-transform: uppercase;
+        }
+
+        .hud-stat span {
+            color: var(--neon-blue);
+            font-size: 1.6rem;
+        }
+
+        .timer-badge {
+            background: var(--neon-yellow);
+            color: #000;
+            padding: 6px 20px;
+            border-radius: 12px;
+            font-size: 1.5rem;
+            box-shadow: 0 0 15px rgba(255, 223, 0, 0.4);
+        }
+
+        .question-container {
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 10px 0;
+            gap: 15px;
+        }
+
+        .question-emoji {
+            font-size: 6.5rem;
+            filter: drop-shadow(0 0 15px rgba(255,255,255,0.25));
+            animation: popIn 0.25s ease;
+        }
+
+        .question-text {
+            font-size: 2.3rem;
+            line-height: 1.1;
+            color: #fff;
+            text-shadow: 0 2px 8px rgba(0,0,0,0.8);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            padding: 0 5px;
+        }
+
+        .review-scroll {
+            background: #060614;
+            border-radius: 20px;
+            padding: 12px;
+            overflow-y: auto;
+            flex-grow: 1;
+            margin: 15px 0;
+            border: 2px solid #2a2a5a;
+        }
+
+        .review-card {
+            padding: 12px;
+            border-bottom: 1px solid #1a1a3a;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            font-size: 1.1rem;
+            font-family: sans-serif;
+        }
+
+        .status-correct { color: var(--neon-green); font-weight: bold; font-size: 1.2rem; }
+        .status-wrong { color: var(--neon-pink); font-weight: bold; font-size: 1.2rem; }
+
+        .flash-overlay {
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            border-radius: 26px;
+            pointer-events: none;
+            z-index: 99;
+            opacity: 0;
+            transition: opacity 0.08s ease;
+        }
+
+        @keyframes pulseGlow {
+            0% { text-shadow: 0 0 10px rgba(255,255,255,0.2); }
+            100% { text-shadow: 0 0 25px var(--neon-blue); transform: rotate(2deg) scale(1.03); }
+        }
+
+        @keyframes bounceIn {
+            0% { transform: scale(0.3); opacity: 0; }
+            50% { transform: scale(1.1); }
+            70% { transform: scale(0.9); }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        .shake-animation {
+            animation: violentShake 0.15s linear infinite;
+        }
+
+        @keyframes violentShake {
+            0% { transform: translate(2px, 1px) rotate(0deg); }
+            10% { transform: translate(-1px, -2px) rotate(-1deg); }
+            20% { transform: translate(-3px, 0px) rotate(1deg); }
+            30% { transform: translate(0px, 2px) rotate(0deg); }
+            40% { transform: translate(1px, -1px) rotate(1deg); }
+            50% { transform: translate(-1px, 2px) rotate(-1deg); }
+            60% { transform: translate(-3px, 1px) rotate(0deg); }
+            70% { transform: translate(2px, 1px) rotate(-1deg); }
+            80% { transform: translate(-1px, -1px) rotate(1deg); }
+            90% { transform: translate(2px, 2px) rotate(0deg); }
+            100% { transform: translate(1px, -2px) rotate(-1deg); }
+        }
+    </style>
+</head>
+<body>
+
+    <div id="game-container" class="game-card">
+        <div id="flash" class="flash-overlay"></div>
+
+        <!-- SCREEN 1: THE WELCOME SCREEN -->
+        <div id="scr-start" class="screen active">
+            <h1>Alpha<span>Bet</span></h1>
+            
+            <div style="margin: auto 0; width: 100%;">
+                <div class="section-label">SELECT ORAL ROUND TIME</div>
+                <div class="time-grid">
+                    <button class="time-btn" onclick="setTimeLimit(30, this)">30s</button>
+                    <button class="time-btn selected" onclick="setTimeLimit(60, this)">60s</button>
+                    <button class="time-btn" onclick="setTimeLimit(90, this)">90s</button>
+                </div>
+                <div class="section-label" style="color: var(--text-muted); font-size: 0.95rem; font-family: sans-serif; font-weight: bold; line-height: 1.3;">
+                    ORAL CHALLENGE MODE: READ THE CARD ALOUD, SAY YOUR ANSWER, AND TRACK PASS/FAIL MANUALLY BY TAPPING THE SCREEN FAST!
+                </div>
+            </div>
+
+            <button class="action-btn btn-neon-pink" onclick="routeToSelection()">START ORAL ROUND</button>
+        </div>
+
+        <!-- SCREEN 2: LETTER SELECTION GAMBLE -->
+        <div id="scr-decision" class="screen">
+            <h2 id="decision-header" style="text-align: center; color: var(--neon-pink); font-size: 2rem;">OFFERED LETTER</h2>
+            <div id="big-letter" class="letter-hero">G</div>
+            <div class="btn-stack">
+                <button class="action-btn btn-neon-green" onclick="confirmLetter()">LOCK IT IN!</button>
+                <button id="swap-action-btn" class="action-btn btn-outline" onclick="gambleLetter()">GAMBLE & SWAP</button>
+            </div>
+        </div>
+
+        <!-- SCREEN 3: ACTIVE GAMEPLAY LOOP -->
+        <div id="scr-play" class="screen">
+            <div class="hud">
+                <div class="hud-stat">SCORE: <span id="hud-score">0</span></div>
+                <div class="hud-stat">LETTER: <span id="hud-letter" style="color:var(--neon-pink)">-</span></div>
+                <div id="hud-timer" class="timer-badge">60s</div>
+            </div>
+
+            <div class="question-container">
+                <div id="live-emoji" class="question-emoji">⚡</div>
+                <div id="live-question" class="question-text">LOADING BLITZ...</div>
+            </div>
+
+            <!-- Giant Score Capture Buttons (No input typing field) -->
+            <div class="btn-stack" style="gap: 16px;">
+                <button class="action-btn btn-neon-green score-pad" onclick="markOralPoint(true)">CORRECT (PASS)</button>
+                <button class="action-btn btn-neon-pink score-pad" onclick="markOralPoint(false)">WRONG / SKIP</button>
+            </div>
+        </div>
+
+        <!-- SCREEN 4: ROUND RESULTS RECAP -->
+        <div id="scr-results" class="screen">
+            <h2 style="text-align: center; font-size: 2.5rem; color: var(--neon-pink);">ROUND END!</h2>
+            <div style="text-align: center; margin: 5px 0;">
+                <p style="color: var(--text-muted); font-size: 1.2rem; text-transform: uppercase;">LETTER <strong id="summary-letter" style="color:var(--neon-blue)">-</strong> SCORE</p>
+                <h3 id="summary-score" style="font-size: 5.5rem; color: var(--neon-green); font-weight: 900; line-height: 1;">0</h3>
+            </div>
+            
+            <div id="score-log" class="review-scroll"></div>
+            
+            <button class="action-btn btn-neon-pink" onclick="resetToHome()">PLAY AGAIN</button>
+        </div>
+    </div>
+
+    <script>
+        // --- DATA BANK: 500+ DIVERSE INQUIRIES WITH CORRESPONDING EMOJIS ---
+        const questionsList = [
+            {q: "A type of fruit", e: "🍎"}, {q: "A country in Europe", e: "🇪🇺"}, {q: "An item found in a kitchen", e: "🍳"}, {q: "A profession or job", e: "💼"}, {q: "A cold-blooded animal", e: "🦎"},
+            {q: "Something you wear on your feet", e: "👟"}, {q: "A capital city", e: "🏙️"}, {q: "A musical instrument", e: "🎸"}, {q: "Something found in space", e: "🚀"}, {q: "A color", e: "🎨"},
+            {q: "A language spoken somewhere in the world", e: "🗣️"}, {q: "An ocean or sea", e: "🌊"}, {q: "A popular boy's name", e: "👦"}, {q: "A popular girl's name", e: "👧"}, {q: "A type of flower", e: "🌻"},
+            {q: "A wild animal", e: "🦁"}, {q: "A domestic pet", e: "🐶"}, {q: "Something you find at a beach", e: "🏖️"}, {q: "A school subject", e: "📚"}, {q: "A type of vehicle", e: "🚗"},
+            {q: "Something found in a bathroom", e: "🛁"}, {q: "An element on the periodic table", e: "🧪"}, {q: "A sport or physical game", e: "⚽"}, {q: "A piece of furniture", e: "🛋️"}, {q: "A tool found in a garage", e: "🔧"},
+            {q: "A reason for being late", e: "⏰"}, {q: "Something soft", e: "🧸"}, {q: "Something hot", e: "🔥"}, {q: "Something cold", e: "❄️"}, {q: "A spice or herb", e: "🌿"},
+            {q: "A sharp object", e: "🔪"}, {q: "Something made of wood", e: "🪵"}, {q: "Something transparent", e: "🔍"}, {q: "A bird species", e: "🦅"}, {q: "An insect", e: "🪲"},
+            {q: "A clothing brand", e: "👕"}, {q: "A country in Asia", e: "🌏"}, {q: "A country in Africa", e: "🌍"}, {q: "A U.S. State", e: "🇺🇸"}, {q: "Something you see in a hospital", e: "🏥"},
+            {q: "A weapon", e: "⚔️"}, {q: "A gemstone or crystal", e: "💎"}, {q: "A type of tree", e: "🌲"}, {q: "Something rectangular", e: "📦"}, {q: "Something spherical", e: "🔮"},
+            {q: "A cartoon character", e: "👾"}, {q: "A historical figure", e: "👑"}, {q: "A type of fabric or textile", e: "🧵"}, {q: "A computer component", e: "💾"}, {q: "A reason to celebrate", e: "🎉"},
+            {q: "Something that smells good", e: "🌸"}, {q: "Something that smells bad", e: "🦨"}, {q: "An outdoor hobby", e: "🎣"}, {q: "An indoor hobby", e: "🧩"}, {q: "A mythical creature", e: "🦄"},
+            {q: "A type of dance", e: "💃"}, {q: "A beverage or drink", e: "🍹"}, {q: "A breakfast food", e: "🥞"}, {q: "A dessert or sweet treat", e: "🍰"}, {q: "A green vegetable", e: "🥦"},
+            {q: "A body part", e: "💪"}, {q: "An internal organ", e: "🫁"}, {q: "A unit of measurement", e: "📏"}, {q: "A type of metal", e: "🪙"}, {q: "Something associated with Halloween", e: "🎃"},
+            {q: "Something associated with Christmas", e: "🎄"}, {q: "A weather condition", e: "☀️"}, {q: "A natural disaster", e: "🌪️"}, {q: "A shape", e: "📐"}, {q: "A type of currency", e: "💵"},
+            {q: "Something you turn on with a switch", e: "💡"}, {q: "A type of snake", e: "🐍"}, {q: "Something found in a library", e: "🏛️"}, {q: "A type of footwear", e: "👠"}, {q: "A dinosaur", e: "🦕"},
+            {q: "A liquid", e: "💧"}, {q: "A gas", e: "💨"}, {q: "A solid", e: "🧱"}, {q: "Something that floats", e: "🦆"}, {q: "Something that sinks", e: "⚓"},
+            {q: "A type of nut", e: "🥜"}, {q: "A grain or cereal crop", e: "🌾"}, {q: "A seafood item", e: "🦞"}, {q: "A fast food chain", e: "🍔"}, {q: "A superhero", e: "🦸‍♂️"},
+            {q: "A supervillain", e: "🦹‍♂️"}, {q: "An architectural feature", e: "🏛️"}, {q: "A type of boat or ship", e: "🚢"}, {q: "Something you find in a wallet", e: "💳"}, {q: "A type of candy", e: "🍬"},
+            {q: "A dangerous hobby", e: "🧗"}, {q: "A farm animal", e: "🐖"}, {q: "Something found in a forest", e: "🌲"}, {q: "Something found in a desert", e: "🌵"}, {q: "A type of crime", e: "🕵️‍♂️"},
+            {q: "A standard school supply", e: "✏️"}, {q: "A component of a car", e: "🚗"}, {q: "A type of hat", e: "🎩"}, {q: "A famous landmark", e: "🗼"}, {q: "A dog breed", e: "🦮"},
+            {q: "A cat breed", e: "🐈"}, {q: "Something you do at the gym", e: "🏋️‍♂️"}, {q: "A major world river", e: "🏞️"}, {q: "A mountain or mountain range", e: "🏔️"}, {q: "A type of shoes", e: "👞"},
+            {q: "Something with a screen", e: "📱"}, {q: "A piece of luggage or bag", e: "💼"}, {q: "A type of pasta", e: "🍝"}, {q: "A pizza topping", e: "🍕"}, {q: "An ingredient in a cake", e: "🥚"},
+            {q: "A winter sport", e: "⛷️"}, {q: "A summer sport", e: "🏄‍♂️"}, {q: "Something you pack for a vacation", e: "🧳"}, {q: "An office supply", e: "📎"}, {q: "A type of cheese", e: "🧀"},
+            {q: "A fish species", e: "🐟"}, {q: "Something made of plastic", e: "🥤"}, {q: "Something made of glass", e: "🥛"}, {q: "Something made of metal", e: "⛓️"}, {q: "A command you give a dog", e: "🫱"},
+            {q: "A type of dwelling or house", e: "🏠"}, {q: "A cosmetic or makeup item", e: "💄"}, {q: "Something you find in a garden", e: "🏡"}, {q: "A broad human emotion", e: "🎭"}, {q: "A bad habit", e: "🚬"},
+            {q: "A good habit", e: "🥗"}, {q: "Something that makes noise", e: "🔊"}, {q: "Something completely silent", e: "🤫"}, {q: "A type of terrain", e: "🏜️"}, {q: "A tourist destination", e: "✈️"},
+            {q: "A board game", e: "🎲"}, {q: "A card game", e: "🃏"}, {q: "A video game title", e: "🎮"}, {q: "A classic book title", e: "📖"}, {q: "A movie genre", e: "🎬"},
+            {q: "A music genre", e: "🎧"}, {q: "Something you find in a bedroom", e: "🛏️"}, {q: "Something you find in a living room", e: "📺"}, {q: "A cleaning supply", e: "🧹"}, {q: "A type of tool", e: "🔨"},
+            {q: "Something sticky", e: "🍯"}, {q: "Something slippery", e: "🧼"}, {q: "Something rough to the touch", e: "🧽"}, {q: "Something smooth to the touch", e: "💎"}, {q: "A type of medicine", e: "💊"},
+            {q: "A medical condition or disease", e: "🦠"}, {q: "A symptom of a cold", e: "🤧"}, {q: "An insect that bites or stings", e: "🐝"}, {q: "A nocturnal animal", e: "🦉"}, {q: "A bird that cannot fly", e: "🐧"},
+            {q: "A mammal that lives in the ocean", e: "🐋"}, {q: "A type of shellfish", e: "🦪"}, {q: "Something you plug into a wall", e: "🔌"}, {q: "A wireless technology", e: "📶"}, {q: "A social media platform", e: "🌐"},
+            {q: "A web browser", e: "💻"}, {q: "A programming language", e: "💻"}, {q: "Something you write with", e: "✒️"}, {q: "Something you write on", e: "📄"}, {q: "A type of sensory experience", e: "👁️"},
+            {q: "A reason to smile", e: "😁"}, {q: "A reason to cry", e: "😭"}, {q: "Something you do when you are angry", e: "😡"}, {q: "A collective noun for animals", e: "🦓"}, {q: "A type of monkey or ape", e: "🐒"},
+            {q: "A constellation", e: "🌌"}, {q: "A planet or celestial body", e: "🪐"}, {q: "Something you do in the morning", e: "🌅"}, {q: "Something you do right before bed", e: "🌃"}, {q: "A type of soup", e: "🥣"},
+            {q: "A salad ingredient", e: "🥗"}, {q: "A type of sandwich", e: "🥪"}, {q: "A condiment or sauce", e: "🥫"}, {q: "Something found in a vending machine", e: "🪙"}, {q: "A type of coin or paper money", e: "🪙"},
+            {q: "A type of line (geometry)", e: "➖"}, {q: "A mathematical term", e: "➕"}, {q: "A scientific instrument", e: "🔬"}, {q: "An ancient civilization", e: "🏺"}, {q: "A famous king or queen", e: "👑"},
+            {q: "A title of nobility", e: "👑"}, {q: "A type of government system", e: "🏛️"}, {q: "An economic term", e: "📈"}, {q: "A type of weather front", e: "🌀"}, {q: "A cloud type", e: "☁️"},
+            {q: "Something associated with the ocean", e: "🦈"}, {q: "Something associated with rivers", e: "🛶"}, {q: "Something associated with fire", e: "🌋"}, {q: "Something associated with wind", e: "🪁"}, {q: "Something associated with earth", e: "🌱"},
+            {q: "A prehistoric tool", e: "🪓"}, {q: "A method of cooking", e: "🍳"}, {q: "A kitchen appliance", e: "🍞"}, {q: "A piece of table silverware", e: "🍴"}, {q: "A type of glass drinkware", e: "🍷"},
+            {q: "A routine household chore", e: "🧺"}, {q: "A gardening tool", e: "✂️"}, {q: "A type of fertilizer or soil", e: "🪱"}, {q: "A pest found in houses", e: "🪰"}, {q: "Something that rots", e: "🍎"},
+            {q: "Something that rusts", e: "⚓"}, {q: "Something that evaporates", e: "💨"}, {q: "A property of water", e: "💧"}, {q: "A type of biological cell", e: "🧫"}, {q: "A human hormone", e: "🧠"},
+            {q: "A muscle in the human body", e: "💪"}, {q: "A bone in the human body", e: "🦴"}, {q: "A type of doctor or specialist", "e": "🩺"}, {q: "A medical procedure", "e": "💉"}, {q: "An emergency vehicle", "e": "🚑"},
+            {q: "Something found at a construction site", "e": "🏗️"}, {q: "A building material", "e": "🧱"}, {q: "A type of roofing material", "e": "🏠"}, {q: "A flooring type", "e": "🪵"}, {q: "A paint color variation", "e": "🖌️"},
+            {q: "A style of art", "e": "🖼️"}, {q: "A famous painter", "e": "👨‍🎨"}, {q: "A musical term for speed", "e": "⏱️"}, {q: "A musical note or dynamic mark", "e": "🎼"}, {q: "A brass instrument", "e": "🎺"},
+            {q: "A woodwind instrument", "e": "🎷"}, {q: "A percussion instrument", "e": "🥁"}, {q: "A stringed instrument", "e": "🎻"}, {q: "A type of poem", "e": "📜"}, {q: "A literary device", "e": "📖"},
+            {q: "A punctuation mark", "e": "❓"}, {q: "A part of speech", "e": "📝"}, {q: "A type of sentence", "e": "💬"}, {q: "A foreign phrase used in English", "e": "🗣️"}, {q: "A mythological god or goddess", "e": "⚡"},
+            {q: "A legendary city or place", "e": "🏰"}, {q: "A monster from folklore", "e": "👹"}, {q: "A magical item", "e": "🪄"}, {q: "A type of wizard or spellcaster", "e": "🧙‍♂️"}, {q: "A planet in our solar system", "e": "🪐"},
+            {q: "A moon of any planet", "e": "🌙"}, {q: "A space mission or satellite", "e": "🛰️"}, {q: "An astronautical term", "e": "👨‍🚀"}, {q: "A type of telescope", "e": "🔭"}, {q: "A hobby involving collections", "e": "🪙"},
+            {q: "A craft hobby", "e": "🎨"}, {q: "A textile art", "e": "🧶"}, {q: "A type of yarn or thread", "e": "🧵"}, {q: "A sewing tool", "e": "🪡"}, {q: "A knot type", "e": "🪢"},
+            {q: "A type of measurement unit for weight", "e": "⚖️"}, {q: "A unit for distance", "e": "🛣️"}, {q: "A unit for volume", "e": "🧪"}, {q: "A unit for electricity", "e": "⚡"}, {q: "A unit for temperature", "e": "🌡️"},
+            {q: "A type of angle", "e": "📐"}, {q: "A polygon shape", "e": "⬡"}, {q: "A 3D geometric solid", "e": "📦"}, {q: "A term used in calculus or algebra", "e": "🧮"}, {q: "A statistical term", "e": "📊"},
+            {q: "A type of graph or chart", "e": "📉"}, {q: "A method of data collection", "e": "📋"}, {q: "A psychological term", "e": "🧠"}, {q: "A human personality trait", "e": "👤"}, {q: "A defensive mechanism (psychology)", "e": "🛡️"},
+            {q: "A type of phobia", "e": "🙀"}, {q: "An optical illusion type", "e": "🌀"}, {q: "A sleep-related phenomenon", "e": "💤"}, {q: "A type of dream element", "e": "💭"}, {q: "A sensory organ", "e": "👂"},
+            {q: "A taste profile", "e": "🍋"}, {q: "A type of smell category", "e": "👃"}, {q: "A sound frequency descriptor", "e": "🔊"}, {q: "A type of lighting", "e": "🔦"}, {q: "A source of renewable energy", "e": "☀️"},
+            {q: "A source of non-renewable energy", "e": "🛢️"}, {q: "A pollutant", "e": "🏭"}, {q: "An eco-friendly practice", "e": "♻️"}, {q: "A type of ecosystem", "e": "🌳"}, {q: "A biome type", "e": "❄️"},
+            {q: "A desert plant", "e": "🌵"}, {q: "A wetland animal", "e": "🐊"}, {q: "A tundra dweller", "e": "🦊"}, {q: "A rainforest predator", "e": "🐆"}, {q: "A deep-sea creature", "e": "🦑"},
+            {q: "A coral reef inhabitant", "e": "🐠"}, {q: "A type of algae or seaweed", "e": "🌿"}, {q: "A fungus or mushroom type", "e": "🍄"}, {q: "A type of bacteria", "e": "🧫"}, {q: "A viral disease", "e": "🦠"},
+            {q: "A vaccination type", "e": "💉"}, {q: "A type of medication format (e.g., pill)", "e": "💊"}, {q: "A first aid item", "e": "🩹"}, {q: "A component of blood", "e": "🩸"}, {q: "A type of blood vessel", "e": "🩸"},
+            {q: "A layer of the skin", "e": "🖐️"}, {q: "A hair accessory", "e": "🎀"}, {q: "A type of clothing pattern", "e": "🏁"}, {q: "A style of dress", "e": "👗"}, {q: "A type of jacket or coat", "e": "🧥"},
+            {q: "A sleeve style", "e": "👕"}, {q: "A neck line style", "e": "👕"}, {q: "A shoe component", "e": "👟"}, {q: "A leather alternative", "e": "🌱"}, {q: "A jewelry item", "e": "💍"},
+            {q: "A piercing location", "e": "👂"}, {q: "A type of earring", "e": "💎"}, {q: "A necklace style", "e": "📿"}, {q: "A ring type", "e": "💍"}, {q: "A watch component", "e": "⌚"},
+            {q: "A timekeeping device", "e": "🕰️"}, {q: "A calendar system", "e": "📅"}, {q: "A month of the year", "e": "📆"}, {q: "A day of the week", "e": "📆"}, {q: "A season indicator", "e": "🍂"},
+            {q: "A holiday celebrated in spring", "e": "🌸"}, {q: "A holiday celebrated in autumn", "e": "🎃"}, {q: "A festival type", "e": "🎪"}, {q: "A cultural ritual", "e": "🕯️"}, {q: "A type of dance performance", "e": "🕺"},
+            {q: "A theatrical term", "e": "🎭"}, {q: "A part of a stage", "e": "🎭"}, {q: "A lighting fixture in theater", "e": "💡"}, {q: "A type of script document", "e": "📜"}, {q: "A movie studio", "e": "🏢"},
+            {q: "A television network", "e": "📺"}, {q: "A streaming service", "e": "🍿"}, {q: "A broadcast medium", "e": "📻"}, {q: "A audio equipment piece", "e": "🎛️"}, {q: "A microphone type", "e": "🎙️"},
+            {q: "A camera accessory", "e": "📸"}, {q: "A photography style", "e": "📷"}, {q: "A type of lens", "e": "🔍"}, {q: "An exposure setting", "e": "☀️"}, {q: "A print medium", "e": "📰"},
+            {q: "A journalistic term", "e": "📰"}, {q: "A newspaper section", "e": "📰"}, {q: "A magazine category", "e": "📖"}, {q: "A comic book term", "e": "💥"}, {q: "A type of paper stock", "e": "📄"},
+            {q: "A binding method for books", "e": "📚"}, {q: "A library classification system", "e": "📚"}, {q: "A genre of fiction", "e": "🧙‍♀️"}, {q: "A non-fiction subgenre", "e": "🧠"}, {q: "A biographical subject area", "e": "👤"},
+            {q: "A philosophical movement", "e": "🤔"}, {q: "A famous philosopher", "e": "👴"}, {q: "A logic term", "e": "🧩"}, {q: "An ethical concept", "e": "⚖️"}, {q: "A political ideology", "e": "🏛️"},
+            {q: "A structure in a city", "e": "🏢"}, {q: "A municipal department", "e": "🏢"}, {q: "A public service", "e": "🚌"}, {q: "A emergency protocol", "e": "🚨"}, {q: "A traffic control device", "e": "🚦"},
+            {q: "A type of road or highway", "e": "🛣️"}, {q: "A bridge design type", "e": "🌉"}, {q: "A tunnel location", "e": "🚇"}, {q: "A method of rail transport", "e": "🚂"}, {q: "A train component", "e": "🛞"},
+            {q: "A aviation term", "e": "✈️"}, {q: "An aircraft type", "e": "🚁"}, {q: "An airport area", "e": "🛫"}, {q: "A flight maneuver", "e": "🛩️"}, {q: "A nautical maneuver", "e": "⚓"},
+            {q: "A part of a sailboat", "e": "⛵"}, {q: "A type of commercial ship", "e": "🚢"}, {q: "A harbor structure", "e": "⚓"}, {q: "A navigation tool", "e": "🧭"}, {q: "A map feature", "e": "🗺️"},
+            {q: "A cartographic term", "e": "🗺️"}, {q: "A land survey tool", "e": "📐"}, {q: "A type of rock or stone", "e": "🪨"}, {q: "A mineral type", "e": "💎"}, {q: "A geological era", "e": "🦖"},
+            {q: "Fossil types", "e": "🦴"}, {q: "A volcanic feature", "e": "🌋"}, {q: "An earthquake term", "e": "🫨"}, {q: "A plate tectonics term", "e": "🌍"}, {q: "A mountain building process", "e": "⛰️"},
+            {q: "A type of valley", "e": "⛰️"}, {q: "A river feature (e.g., waterfall)", "e": "🏞️"}, {q: "A coastal feature", "e": "🏖️"}, {q: "An island type", "e": "🏝️"}, {q: "A reef structure", "e": "🪸"},
+            {q: "A current in the ocean", "e": "🌊"}, {q: "A wave property", "e": "🌊"}, {q: "A wind pattern", "e": "💨"}, {q: "A climate zone", "e": "🌍"}, {q: "A weather forecasting tool", "e": "🌡️"},
+            {q: "A atmospheric gas", "e": "💨"}, {q: "A layer of the atmosphere", "e": "🌤️"}, {q: "A space phenomenon", "e": "🌠"}, {q: "A solar feature", "e": "☀️"}, {q: "A stellar evolution stage", "e": "⭐"},
+            {q: "A type of galaxy", "e": "🌀"}, {q: "A cosmological theory", "e": "🌌"}, {q: "A physics force", "e": "🍏"}, {q: "A type of energy transformation", "e": "⚡"}, {q: "A thermodynamic law term", "e": "🔥"},
+            {q: "A particle in an atom", "e": "⚛️"}, {q: "A quantum mechanics term", "e": "⚛️"}, {q: "A chemical bond type", "e": "🧪"}, {q: "A chemical reaction type", "e": "💥"}, {q: "An acid or base example", "e": "🧪"},
+            {q: "A laboratory glassware item", "e": "🧪"}, {q: "A safety equipment in labs", "e": "🥽"}, {q: "A chemical element category", "e": "🧪"}, {q: "A hydrocarbon type", "e": "🛢️"}, {q: "A polymer material", "e": "🥤"},
+            {q: "A type of plastic recycling code", "e": "♻️"}, {q: "A manufacturing process", "e": "🏭"}, {q: "An industrial machine", "e": "⚙️"}, {q: "A factory role", "e": "👷"}, {q: "A supply chain step", "e": "📦"},
+            {q: "A retail term", "e": "🛒"}, {q: "A type of shop or store", "e": "🏪"}, {q: "A marketing strategy", "e": "📢"}, {q: "An advertising medium", "e": "📺"}, {q: "A consumer behavior term", "e": "🛍️"},
+            {q: "A financial asset", "e": "💰"}, {q: "A banking term", "e": "🏦"}, {q: "A type of tax", "e": "🧾"}, {q: "An investment vehicle", "e": "📈"}, {q: "A stock market term", "e": "📉"},
+            {q: "A real estate term", "e": "🏢"}, {q: "A insurance type", "e": "🛡️"}, {q: "A legal document", "e": "📜"}, {q: "A courtroom role", "e": "👨‍⚖️"}, {q: "A type of law practice", "e": "⚖️"},
+            {q: "A constitutional right", "e": "📜"}, {q: "A international treaty", "e": "🤝"}, {q: "A diplomatic rank", "e": "💼"}, {q: "A government office", "e": "🏛️"}, {q: "A voting system term", "e": "🗳️"},
+            {q: "A military rank", "e": "🎖️"}, {q: "A military vehicle", "e": "🎖️"}, {q: "A defensive fortification", "e": "🏰"}, {q: "A strategy term", "e": "🗺️"}, {q: "A combat sport", "e": "🥊"},
+            {q: "A martial arts style", "e": "🥋"}, {q: "A weapon category", "e": "⚔️"}, {q: "A target shooting sport", "e": "🎯"}, {q: "An Olympic event", "e": "🏅"}, {q: "A track and field event", "e": "🏃"},
+            {q: "A gymnastics apparatus", "e": "🤸"}, {q: "A swimming stroke", "e": "🏊"}, {q: "A water sport vessel", "e": "🛶"}, {q: "A winter sport equipment", "e": "🏂"}, {q: "A team sport ball", "e": "🏀"},
+            {q: "A game played on a court", "e": "🎾"}, {q: "A game played on a field", "e": "🏈"}, {q: "An indoor table game", "e": "🏓"}, {q: "A target game", "e": "🎯"}, {q: "A card suit or rank", "e": "♠️"},
+            {q: "A chess piece", "e": "♞"}, {q: "A dice game term", "e": "🎲"}, {q: "A puzzle type", "e": "🧩"}, {q: "A toy category", "e": "🧸"}, {q: "A playground fixture", "e": "🛝"},
+            {q: "A childhood game", "e": "🏃"}, {q: "A parenting term", "e": "🍼"}, {q: "A family relationship", "e": "👨‍👩‍👧‍👦"}, {q: "A milestone celebration", "e": "🥳"}, {q: "A wedding anniversary gift material", "e": "💍"},
+            {q: "A cooking ingredient that thickens", "e": "🥣"}, {q: "A baking leavening agent", "e": "🍞"}, {q: "A sweetening agent", "e": "🍬"}, {q: "A cooking oil source", "e": "🫒"}, {q: "A dairy product alternative", "e": "🥛"},
+            {q: "A preservation method", "e": "🥫"}, {q: "A fermentation product", "e": "🧀"}, {q: "A style of breakfast egg", "e": "🍳"}, {q: "A cut of meat", "e": "🥩"}, {q: "A poultry type", "e": "🐔"},
+            {q: "A game meat", "e": "🦌"}, {q: "A vegetable root", "e": "🥕"}, {q: "A leafy green", "e": "🥬"}, {q: "A nightshade vegetable", "e": "🍅"}, {q: "A legume variety", "e": "🫘"},
+            {q: "A citrus fruit", "e": "🍋"}, {q: "A stone fruit", "e": "🍑"}, {q: "A berry type", "e": "🍓"}, {q: "A tropical fruit", "e": "🍍"}, {q: "A melon variety", "e": "🍉"},
+            {q: "A dried fruit", "e": "🍇"}, {q: "A seed consumed as food", "e": "🌻"}, {q: "A beverage prepared hot", "e": "☕"}, {q: "A cold carbonated drink", "e": "🥤"}, {q: "A fermented juice beverage", "e": "🍷"},
+            {q: "A distilled beverage", "e": "🥃"}, {q: "A cocktail ingredient", "e": "🍸"}, {q: "A bar tool", "e": "🥄"}, {q: "A cafe menu item", "e": "☕"}, {q: "A restaurant staff role", "e": "🧑‍🍳"},
+            {q: "A hotel amenity", "e": "🛏️"}, {q: "A luggage feature", "e": "🧳"}, {q: "A travel document requirement", "e": "🛂"}, {q: "A transportation hub", "e": "🚉"}, {q: "A souvenir item", "e": "🎁"},
+            {q: "A scenic viewpoint type", "e": "🏞️"}, {q: "A hiking gear item", "e": "🥾"}, {q: "A camping equipment piece", "e": "⛺"}, {q: "A survival skill", "e": "🔥"}, {q: "A knot used in climbing", "e": "🪢"},
+            {q: "A fishing technique", "e": "🎣"}, {q: "A hunting tool", "e": "🏹"}, {q: "A tracking sign", "e": "🐾"}, {q: "A domestic animal breed (large)", "e": "🐎"}, {q: "A poultry breed", "e": "🦆"},
+            {q: "A pet care item", "e": "🐈"}, {q: "A veterinary term", "e": "🩺"}, {q: "An animal behavior", "e": "🐾"}, {q: "A method of animal communication", "e": "🗣️"}, {q: "A migration destination indicator", "e": "🗺️"},
+            {q: "A habitat threat", "e": "⚠️"}, {q: "A conservation method", "e": "🌳"}, {q: "A recycling method", "e": "♻️"}, {q: "A waste management term", "e": "🗑️"}, {q: "A renewable energy device component", "e": "⚙️"},
+            {q: "A construction tool for measuring", "e": "📏"}, {q: "A fastening hardware piece", "e": "🔩"}, {q: "A structural support type", "e": "🏗️"}, {q: "A plumbing fixture component", "e": "🚰"}, {q: "An electrical wire type", "e": "🔌"},
+            {q: "A home insulation material", "e": "🏠"}, {q: "A wall finish style", "e": "🧱"}, {q: "A window style", "e": "🪟"}, {q: "A door mechanism", "e": "🚪"}, {q: "A smart home device function", "e": "📱"},
+            {q: "A computer peripheral for input", "e": "⌨️"}, {q: "An output device for computers", "e": "🖥️"}, {q: "A storage media type", "e": "💾"}, {q: "A data transmission cable", "e": "🔌"}, {q: "A networking device", "e": "🌐"},
+            {q: "A software application category", "e": "💻"}, {q: "An operating system utility", "e": "⚙️"}, {q: "A file format extension", "e": "📄"}, {q: "A cyber security threat", "e": "🪓"}, {q: "A cryptographic term", "e": "🔐"}
+        ];
+
+        let baseAlphabet = "ABCDEFGHIJKLMNOPQRSTUVWYZ".split(''); 
+        let currentSelectionLetter = '';
+        let phaseStep = 1; 
+        let countdownTimer = null;
+        let selectedTimeLimit = 60; 
+        let timeRemaining = 60;
+        let runningScore = 0;
+        let currentQuestionIdx = 0;
+        let activeSessionQuestions = [];
+        let historyLog = [];
+
+        // DOM Handles
+        const gameContainer = document.getElementById('game-container');
+        const scrStart = document.getElementById('scr-start');
+        const scrDecision = document.getElementById('scr-decision');
+        const scrPlay = document.getElementById('scr-play');
+        const scrResults = document.getElementById('scr-results');
+        const flashOverlay = document.getElementById('flash');
+
+        function setTimeLimit(seconds, targetElement) {
+            selectedTimeLimit = seconds;
+            document.querySelectorAll('.time-btn').forEach(btn => btn.classList.remove('selected'));
+            targetElement.classList.add('selected');
+            triggerBallisticEffects('var(--neon-blue)', false);
+        }
+
+        function navigate(targetScreen) {
+            [scrStart, scrDecision, scrPlay, scrResults].forEach(s => s.classList.remove('active'));
+            targetScreen.classList.add('active');
+        }
+
+        function triggerBallisticEffects(color, needsShake) {
+            flashOverlay.style.background = color;
+            flashOverlay.style.opacity = '0.4';
+            setTimeout(() => { flashOverlay.style.opacity = '0'; }, 100);
+
+            if (needsShake) {
+                gameContainer.classList.add('shake-animation');
+                setTimeout(() => { gameContainer.classList.remove('shake-animation'); }, 200);
+            }
+        }
+
+        function randomizedShuffle(arr) {
+            for (let i = arr.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [arr[i], arr[j]] = [arr[j], arr[i]];
+            }
+            return arr;
+        }
+
+        function routeToSelection() {
+            phaseStep = 1;
+            const btnSwap = document.getElementById('swap-action-btn');
+            btnSwap.style.display = 'flex';
+            document.getElementById('decision-header').textContent = "OFFERED LETTER";
+            document.getElementById('decision-header').style.color = "var(--neon-pink)";
+            
+            currentSelectionLetter = baseAlphabet[Math.floor(Math.random() * baseAlphabet.length)];
+            document.getElementById('big-letter').textContent = currentSelectionLetter;
+            navigate(scrDecision);
+        }
+
+        function gambleLetter() {
+            if (phaseStep === 1) {
+                phaseStep = 2;
+                const filteredPool = baseAlphabet.filter(l => l !== currentSelectionLetter);
+                currentSelectionLetter = filteredPool[Math.floor(Math.random() * filteredPool.length)];
+                
+                document.getElementById('big-letter').textContent = currentSelectionLetter;
+                document.getElementById('decision-header').textContent = "FORCED FINAL LETTER";
+                document.getElementById('decision-header').style.color = "var(--neon-yellow)";
+                document.getElementById('swap-action-btn').style.display = 'none';
+                triggerBallisticEffects('var(--neon-pink)', true);
+            }
+        }
+
+        function confirmLetter() {
+            initiateGameplayLoop(currentSelectionLetter);
+        }
+
+        function initiateGameplayLoop(chosenLetter) {
+            runningScore = 0;
+            timeRemaining = selectedTimeLimit; 
+            currentQuestionIdx = 0;
+            historyLog = [];
+            
+            document.getElementById('hud-letter').textContent = chosenLetter;
+            document.getElementById('hud-score').textContent = runningScore;
+            document.getElementById('hud-timer').textContent = timeRemaining + "s";
+            
+            activeSessionQuestions = randomizedShuffle([...questionsList]);
+            
+            navigate(scrPlay);
+            displayNextPrompt();
+
+            countdownTimer = setInterval(() => {
+                timeRemaining--;
+                document.getElementById('hud-timer').textContent = timeRemaining + "s";
+                if (timeRemaining <= 10) {
+                    document.getElementById('hud-timer').style.background = 'var(--neon-pink)';
+                    document.getElementById('hud-timer').style.color = '#fff';
+                } else {
+                    document.getElementById('hud-timer').style.background = 'var(--neon-yellow)';
+                    document.getElementById('hud-timer').style.color = '#000';
+                }
+                if (timeRemaining <= 0) {
+                    wrapUpSession();
+                }
+            }, 1000);
+        }
+
+        function displayNextPrompt() {
+            if (currentQuestionIdx >= activeSessionQuestions.length) {
+                activeSessionQuestions = randomizedShuffle([...questionsList]);
+                currentQuestionIdx = 0;
+            }
+            const dataEntry = activeSessionQuestions[currentQuestionIdx];
+            document.getElementById('live-emoji').textContent = dataEntry.e;
+            document.getElementById('live-question').textContent = dataEntry.q;
+        }
+
+        // Handle oral point recording via clicking giant pads directly
+        function markOralPoint(isCorrect) {
+            const activePrompt = activeSessionQuestions[currentQuestionIdx];
+            
+            if (isCorrect) {
+                runningScore++;
+                document.getElementById('hud-score').textContent = runningScore;
+                triggerBallisticEffects('var(--neon-green)', false);
+                historyLog.push({ q: activePrompt.q, type: 'correct', e: activePrompt.e });
+            } else {
+                triggerBallisticEffects('var(--neon-pink)', true);
+                historyLog.push({ q: activePrompt.q, type: 'wrong', e: activePrompt.e });
+            }
+
+            currentQuestionIdx++;
+            displayNextPrompt();
+        }
+
+        function wrapUpSession() {
+            clearInterval(countdownTimer);
+            triggerBallisticEffects('var(--neon-blue)', true);
+            
+            document.getElementById('summary-letter').textContent = currentSelectionLetter;
+            document.getElementById('summary-score').textContent = runningScore;
+            
+            const listScroller = document.getElementById('score-log');
+            listScroller.innerHTML = '';
+
+            if (historyLog.length === 0) {
+                listScroller.innerHTML = `<div style="text-align:center; padding:20px; color:var(--text-muted)">NO QUESTIONS ANSWERED!</div>`;
+            } else {
+                historyLog.forEach(entry => {
+                    const row = document.createElement('div');
+                    row.className = 'review-card';
+                    
+                    let statusLabel = 'status-wrong';
+                    let textMark = 'FAILED / SKIPPED';
+                    if (entry.type === 'correct') {
+                        statusLabel = 'status-correct';
+                        textMark = 'PASSED';
+                    }
+
+                    row.innerHTML = `
+                        <span style="color: #fff; font-weight:bold; text-transform: uppercase;">${entry.e} Q: ${entry.q}</span>
+                        <span class="${statusLabel}">OUTCOME: ${textMark}</span>
+                    `;
+                    listScroller.appendChild(row);
+                });
+            }
+
+            navigate(scrResults);
+        }
+
+        function resetToHome() {
+            navigate(scrStart);
+        }
+    </script>
+</body>
+</html>
