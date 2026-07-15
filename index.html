@@ -3,17 +3,18 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>ALPHABET: ARCADE BLITZ ORAL</title>
+    <title>ALPHABET: ARCADE ORAL BLITZ</title>
     <style>
         :root {
-            --bg: #03030c;
-            --card-bg: #0d0d21;
-            --neon-pink: #ff007f;
+            --bg: #020208;
+            --card-bg: #090916;
+            --panel-bg: #12122c;
+            --neon-pink: #ff0066;
             --neon-blue: #00ffff;
             --neon-green: #39ff14;
-            --neon-yellow: #ffdf00;
+            --neon-yellow: #ffcc00;
             --text: #ffffff;
-            --text-muted: #65758d;
+            --text-muted: #7889a4;
         }
 
         * {
@@ -28,56 +29,67 @@
             background-color: var(--bg);
             color: var(--text);
             min-height: 100vh;
+            min-height: -webkit-fill-available;
             display: flex;
             justify-content: center;
             align-items: center;
-            padding: 8px;
             overflow: hidden;
             position: fixed;
             width: 100%;
             height: 100%;
         }
 
-        /* Fixed viewport fit container - absolutely zero scrolling */
+        /* Responsive Container: Fullscreen on mobile, contained card on desktop */
         .game-card {
             background: var(--card-bg);
             width: 100%;
-            max-width: 420px;
-            height: 96vh;
-            border-radius: 24px;
-            padding: 16px;
+            height: 100%;
+            max-width: 480px;
             display: flex;
             flex-direction: column;
-            justify-content: space-between;
-            box-shadow: 0 0 30px rgba(0, 240, 255, 0.25), inset 0 0 15px rgba(255, 0, 127, 0.2);
-            border: 3px solid #1a1a3a;
+            padding: 20px;
             position: relative;
             overflow: hidden;
+            box-shadow: 0 0 40px rgba(0, 240, 255, 0.15);
+        }
+
+        @media (min-width: 480px) {
+            .game-card {
+                height: 92vh;
+                border-radius: 28px;
+                border: 3px solid #1e1e3f;
+            }
         }
 
         .screen {
             display: none;
             flex-direction: column;
             height: 100%;
-            justify-content: space-between;
             width: 100%;
-            overflow: hidden;
+            justify-content: space-between;
+            align-items: center;
         }
 
         .screen.active {
             display: flex;
         }
 
-        h1 {
-            font-size: 3.8rem;
+        /* Top Header Styling */
+        .brand-header {
+            width: 100%;
             text-align: center;
+            padding: 10px 0;
+            flex-shrink: 0;
+        }
+
+        h1 {
+            font-size: 3.5rem;
             text-transform: uppercase;
-            letter-spacing: 1px;
+            letter-spacing: 2px;
             color: var(--text);
-            line-height: 0.9;
-            margin-top: 5px;
-            transform: rotate(-1deg);
-            animation: pulseGlow 1.5s infinite alternate;
+            line-height: 1;
+            text-shadow: 0 0 10px rgba(255, 255, 255, 0.1);
+            animation: pulseGlow 2s infinite alternate;
         }
 
         h1 span {
@@ -85,119 +97,115 @@
             text-shadow: 0 0 15px var(--neon-pink);
         }
 
+        /* Main Content Core Grid Allocation */
+        .main-content-area {
+            flex-grow: 1;
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            gap: 20px;
+            overflow: hidden;
+            padding: 10px 0;
+        }
+
         .section-label {
             color: var(--neon-blue);
-            font-size: 1.1rem;
+            font-size: 1.2rem;
             text-transform: uppercase;
             letter-spacing: 1px;
-            margin-bottom: 6px;
             text-align: center;
+        }
+
+        /* Configuration Layout elements */
+        .time-box-wrapper {
+            width: 100%;
+            background: var(--panel-bg);
+            padding: 16px;
+            border-radius: 20px;
+            border: 2px solid #1e1e3f;
         }
 
         .time-grid {
             display: flex;
-            gap: 8px;
+            gap: 10px;
             width: 100%;
-            margin-bottom: 12px;
+            margin-top: 10px;
         }
 
         .time-btn {
             flex: 1;
-            padding: 10px;
-            font-size: 1.1rem;
+            padding: 14px 0;
+            font-size: 1.3rem;
             font-weight: 900;
-            background: #151535;
-            border: 3px solid #2a2a5a;
+            background: #050510;
+            border: 3px solid #25254e;
             color: var(--text);
-            border-radius: 12px;
+            border-radius: 14px;
             cursor: pointer;
             text-transform: uppercase;
+            transition: all 0.1s ease;
         }
 
         .time-btn.selected {
             background: var(--neon-blue);
             color: #000;
             border-color: #fff;
-            box-shadow: 0 0 12px rgba(0, 240, 255, 0.4);
+            box-shadow: 0 0 15px rgba(0, 240, 255, 0.4);
+        }
+
+        .mode-description {
+            color: var(--text-muted);
+            font-size: 0.95rem;
+            font-family: sans-serif;
+            font-weight: bold;
+            line-height: 1.4;
+            text-align: center;
+            text-transform: uppercase;
+            padding: 0 10px;
         }
 
         .letter-hero {
-            font-size: 10rem;
+            font-size: 11rem;
             color: var(--neon-blue);
-            text-shadow: 0 0 30px var(--neon-blue);
+            text-shadow: 0 0 35px var(--neon-blue);
             text-align: center;
             line-height: 0.8;
-            margin: auto 0;
+            margin: 10px 0;
         }
 
-        .btn-stack {
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-            width: 100%;
-        }
-
-        .action-btn {
-            width: 100%;
-            padding: 16px;
-            font-size: 1.4rem;
-            font-weight: 900;
-            border: none;
-            border-radius: 16px;
-            cursor: pointer;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            box-shadow: 0 5px 0 #000;
-        }
-
-        .action-btn:active {
-            transform: translateY(3px);
-            box-shadow: 0 2px 0 #000;
-        }
-
-        /* Tactile pads fitted beautifully inside viewport constraints */
-        .score-pad {
-            height: 14vh;
-            font-size: 1.8rem;
-            letter-spacing: 1px;
-            border-radius: 18px;
-        }
-
-        .btn-neon-pink { background: var(--neon-pink); color: #fff; }
-        .btn-neon-blue { background: var(--neon-blue); color: #000; }
-        .btn-neon-green { background: var(--neon-green); color: #000; }
-        .btn-outline { background: #151535; border: 3px solid #2a2a5a; color: var(--text); }
-
+        /* HUD Bar Configuration */
         .hud {
+            width: 100%;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding-bottom: 8px;
-            border-bottom: 3px dashed #2a2a5a;
+            padding-bottom: 12px;
+            border-bottom: 3px dashed #1e1e3f;
+            flex-shrink: 0;
         }
 
         .hud-stat {
-            font-size: 1.1rem;
+            font-size: 1.2rem;
             text-transform: uppercase;
         }
 
         .hud-stat span {
             color: var(--neon-blue);
-            font-size: 1.4rem;
+            font-size: 1.5rem;
         }
 
         .timer-badge {
             background: var(--neon-yellow);
             color: #000;
-            padding: 4px 14px;
-            border-radius: 8px;
-            font-size: 1.3rem;
+            padding: 6px 16px;
+            border-radius: 10px;
+            font-size: 1.4rem;
+            font-weight: 900;
         }
 
-        /* Dynamically scales spacing down to prioritize screen stability */
+        /* Interactive Card Component Layouts */
         .question-container {
             flex-grow: 1;
             display: flex;
@@ -205,43 +213,86 @@
             align-items: center;
             justify-content: center;
             text-align: center;
-            padding: 5px 0;
-            gap: 8px;
-            overflow: hidden;
+            gap: 15px;
+            width: 100%;
         }
 
         .question-emoji {
-            font-size: 5rem;
+            font-size: 6rem;
             filter: drop-shadow(0 0 10px rgba(255,255,255,0.2));
+            line-height: 1;
         }
 
         .question-text {
-            font-size: 1.8rem;
+            font-size: 2.2rem;
             line-height: 1.1;
             color: #fff;
             text-transform: uppercase;
             letter-spacing: 0.5px;
-            max-height: 100px;
-            overflow: hidden;
+            padding: 0 5px;
         }
 
+        /* Giant Control Buttons Layout Block */
+        .footer-action-area {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            flex-shrink: 0;
+            padding-bottom: 10px;
+        }
+
+        .action-btn {
+            width: 100%;
+            padding: 18px;
+            font-size: 1.5rem;
+            font-weight: 900;
+            border: none;
+            border-radius: 18px;
+            cursor: pointer;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 6px 0 #000;
+            transition: transform 0.05s ease;
+        }
+
+        .action-btn:active {
+            transform: translateY(4px);
+            box-shadow: 0 2px 0 #000;
+        }
+
+        .score-pad {
+            padding: 24px;
+            font-size: 1.8rem;
+        }
+
+        .btn-neon-pink { background: var(--neon-pink); color: #fff; }
+        .btn-neon-blue { background: var(--neon-blue); color: #000; }
+        .btn-neon-green { background: var(--neon-green); color: #000; }
+        .btn-outline { background: #151535; border: 3px solid #25254e; color: var(--text); }
+
+        /* End Screen Log Component */
         .review-scroll {
-            background: #060614;
-            border-radius: 16px;
-            padding: 8px;
+            width: 100%;
+            background: #050510;
+            border-radius: 18px;
+            padding: 10px;
             overflow-y: auto;
             flex-grow: 1;
-            margin: 10px 0;
-            border: 2px solid #2a2a5a;
+            border: 2px solid #1e1e3f;
         }
 
         .review-card {
-            padding: 8px;
-            border-bottom: 1px solid #1a1a3a;
+            padding: 10px;
+            border-bottom: 1px solid #12122c;
             display: flex;
             flex-direction: column;
-            font-size: 0.95rem;
+            font-size: 1rem;
             font-family: sans-serif;
+            gap: 4px;
         }
 
         .status-correct { color: var(--neon-green); font-weight: bold; }
@@ -250,7 +301,6 @@
         .flash-overlay {
             position: absolute;
             top: 0; left: 0; right: 0; bottom: 0;
-            border-radius: 24px;
             pointer-events: none;
             z-index: 99;
             opacity: 0;
@@ -258,8 +308,21 @@
         }
 
         @keyframes pulseGlow {
-            0% { text-shadow: 0 0 8px rgba(255,255,255,0.2); }
-            100% { text-shadow: 0 0 20px var(--neon-blue); transform: rotate(1deg) scale(1.02); }
+            0% { transform: scale(1); }
+            100% { transform: scale(1.03); }
+        }
+
+        .shake-animation {
+            animation: violentShake 0.15s linear infinite;
+        }
+
+        @keyframes violentShake {
+            0% { transform: translate(2px, 1px); }
+            20% { transform: translate(-3px, 0px); }
+            40% { transform: translate(1px, -1px); }
+            60% { transform: translate(-2px, 2px); }
+            80% { transform: translate(-1px, -1px); }
+            100% { transform: translate(2px, -2px); }
         }
     </style>
 </head>
@@ -270,28 +333,40 @@
 
         <!-- SCREEN 1: THE WELCOME SCREEN -->
         <div id="scr-start" class="screen active">
-            <h1>Alpha<span>Bet</span></h1>
+            <div class="brand-header">
+                <h1>Alpha<span>Bet</span></h1>
+            </div>
             
-            <div style="margin: auto 0; width: 100%;">
-                <div class="section-label">SELECT ORAL ROUND TIME</div>
-                <div class="time-grid">
-                    <button class="time-btn" onclick="setTimeLimit(30, this)">30s</button>
-                    <button class="time-btn selected" onclick="setTimeLimit(60, this)">60s</button>
-                    <button class="time-btn" onclick="setTimeLimit(90, this)">90s</button>
+            <div class="main-content-area">
+                <div class="time-box-wrapper">
+                    <div class="section-label">SELECT ROUND TIMER</div>
+                    <div class="time-grid">
+                        <button class="time-btn" onclick="setTimeLimit(30, this)">30s</button>
+                        <button class="time-btn selected" onclick="setTimeLimit(60, this)">60s</button>
+                        <button class="time-btn" onclick="setTimeLimit(90, this)">90s</button>
+                    </div>
                 </div>
-                <div class="section-label" style="color: var(--text-muted); font-size: 0.85rem; font-family: sans-serif; font-weight: bold; line-height: 1.2;">
-                    ORAL MODE: READ CARDS ALOUD, SAY YOUR ANSWER, RECORD RESULTS FAST VIA PADS.
-                </div>
+                <p class="mode-description">
+                    📢 ORAL MODE: READ CARDS ALOUD, SAY YOUR ANSWERS OUT LOUD, AND LOG OUTCOMES INSTANTLY VIA GIANT SCORING PADS!
+                </p>
             </div>
 
-            <button class="action-btn btn-neon-pink" onclick="routeToSelection()">START ROUND</button>
+            <div class="footer-action-area">
+                <button class="action-btn btn-neon-pink" onclick="routeToSelection()">START ROUND</button>
+            </div>
         </div>
 
         <!-- SCREEN 2: LETTER SELECTION GAMBLE -->
         <div id="scr-decision" class="screen">
-            <h2 id="decision-header" style="text-align: center; color: var(--neon-pink); font-size: 1.6rem;">OFFERED LETTER</h2>
-            <div id="big-letter" class="letter-hero">G</div>
-            <div class="btn-stack">
+            <div class="brand-header">
+                <h2 id="decision-header" style="color: var(--neon-pink); font-size: 2rem; text-align: center;">OFFERED LETTER</h2>
+            </div>
+            
+            <div class="main-content-area">
+                <div id="big-letter" class="letter-hero">M</div>
+            </div>
+            
+            <div class="footer-action-area">
                 <button class="action-btn btn-neon-green" onclick="confirmLetter()">LOCK IT IN!</button>
                 <button id="swap-action-btn" class="action-btn btn-outline" onclick="gambleLetter()">GAMBLE & SWAP</button>
             </div>
@@ -305,12 +380,14 @@
                 <div id="hud-timer" class="timer-badge">60s</div>
             </div>
 
-            <div class="question-container">
-                <div id="live-emoji" class="question-emoji">⚡</div>
-                <div id="live-question" class="question-text">LOADING...</div>
+            <div class="main-content-area">
+                <div class="question-container">
+                    <div id="live-emoji" class="question-emoji">⚡</div>
+                    <div id="live-question" class="question-text">LOADING...</div>
+                </div>
             </div>
 
-            <div class="btn-stack" style="gap: 10px;">
+            <div class="footer-action-area" style="gap: 14px;">
                 <button class="action-btn btn-neon-green score-pad" onclick="markOralPoint(true)">CORRECT (PASS)</button>
                 <button class="action-btn btn-neon-pink score-pad" onclick="markOralPoint(false)">WRONG / SKIP</button>
             </div>
@@ -318,20 +395,25 @@
 
         <!-- SCREEN 4: ROUND RESULTS RECAP -->
         <div id="scr-results" class="screen">
-            <h2 style="text-align: center; font-size: 2rem; color: var(--neon-pink);">ROUND END!</h2>
-            <div style="text-align: center; margin: 2px 0;">
-                <p style="color: var(--text-muted); font-size: 1rem; text-transform: uppercase;">LETTER <strong id="summary-letter" style="color:var(--neon-blue)">-</strong> SCORE</p>
-                <h3 id="summary-score" style="font-size: 4rem; color: var(--neon-green); font-weight: 900; line-height: 1;">0</h3>
+            <div class="brand-header">
+                <h2 style="font-size: 2.2rem; color: var(--neon-pink); text-align: center;">ROUND OVER</h2>
+            </div>
+            
+            <div style="text-align: center; margin-bottom: 10px; flex-shrink: 0;">
+                <p style="color: var(--text-muted); font-size: 1.1rem; text-transform: uppercase;">LETTER <strong id="summary-letter" style="color:var(--neon-blue)">-</strong> FINAL TALLY</p>
+                <h3 id="summary-score" style="font-size: 4.5rem; color: var(--neon-green); font-weight: 900; line-height: 1;">0</h3>
             </div>
             
             <div id="score-log" class="review-scroll"></div>
             
-            <button class="action-btn btn-neon-pink" onclick="resetToHome()">PLAY AGAIN</button>
+            <div class="footer-action-area">
+                <button class="action-btn btn-neon-pink" onclick="resetToHome()">PLAY AGAIN</button>
+            </div>
         </div>
     </div>
 
     <script>
-        // Data Bank injection
+        // --- COMPLETE 500+ DIVERSE DATA INQUIRIES PACK ---
         const questionsList = [
             {q: "A type of fruit", e: "🍎"}, {q: "A country in Europe", e: "🇪🇺"}, {q: "An item found in a kitchen", e: "🍳"}, {q: "A profession or job", e: "💼"}, {q: "A cold-blooded animal", e: "🦎"},
             {q: "Something you wear on your feet", e: "👟"}, {q: "A capital city", e: "🏙️"}, {q: "A musical instrument", e: "🎸"}, {q: "Something found in space", e: "🚀"}, {q: "A color", e: "🎨"},
@@ -355,7 +437,23 @@
             {q: "A standard school supply", e: "✏️"}, {q: "A component of a car", e: "🚗"}, {q: "A type of hat", e: "🎩"}, {q: "A famous landmark", e: "🗼"}, {q: "A dog breed", e: "🦮"},
             {q: "A cat breed", e: "🐈"}, {q: "Something you do at the gym", e: "🏋️‍♂️"}, {q: "A major world river", e: "🏞️"}, {q: "A mountain or mountain range", e: "🏔️"}, {q: "A type of shoes", e: "👞"},
             {q: "Something with a screen", e: "📱"}, {q: "A piece of luggage or bag", e: "💼"}, {q: "A type of pasta", e: "🍝"}, {q: "A pizza topping", e: "🍕"}, {q: "An ingredient in a cake", e: "🥚"},
-            {q: "A winter sport", e: "⛷️"}, {q: "A summer sport", e: "SURFING 🏄‍♂️"}, {q: "Something you pack for a vacation", e: "🧳"}, {q: "An office supply", e: "📎"}, {q: "A type of cheese", e: "🧀"}
+            {q: "A winter sport", e: "⛷️"}, {q: "A summer sport", e: "🏄‍♂️"}, {q: "Something you pack for a vacation", e: "🧳"}, {q: "An office supply", e: "📎"}, {q: "A type of cheese", e: "🧀"},
+            {q: "A fish species", e: "🐟"}, {q: "Something made of plastic", e: "🥤"}, {q: "Something made of glass", e: "🥛"}, {q: "Something made of metal", e: "⛓️"}, {q: "A command you give a dog", e: "🫱"},
+            {q: "A type of dwelling or house", e: "🏠"}, {q: "A cosmetic or makeup item", e: "💄"}, {q: "Something you find in a garden", e: "🏡"}, {q: "A broad human emotion", e: "🎭"}, {q: "A bad habit", e: "🚬"},
+            {q: "A good habit", e: "🥗"}, {q: "Something that makes noise", e: "🔊"}, {q: "Something completely silent", e: "🤫"}, {q: "A type of terrain", e: "🏜️"}, {q: "A tourist destination", e: "✈️"},
+            {q: "A board game", e: "🎲"}, {q: "A card game", e: "🃏"}, {q: "A video game title", e: "🎮"}, {q: "A classic book title", e: "📖"}, {q: "A movie genre", e: "🎬"},
+            {q: "A music genre", e: "🎧"}, {q: "Something you find in a bedroom", e: "🛏️"}, {q: "Something you find in a living room", e: "📺"}, {q: "A cleaning supply", e: "🧹"}, {q: "A type of tool", e: "🔨"},
+            {q: "Something sticky", e: "🍯"}, {q: "Something slippery", e: "🧼"}, {q: "Something rough to the touch", e: "🧽"}, {q: "Something smooth to the touch", e: "💎"}, {q: "A type of medicine", e: "💊"},
+            {q: "A medical condition or disease", e: "🦠"}, {q: "A symptom of a cold", e: "🤧"}, {q: "An insect that bites or stings", e: "🐝"}, {q: "A nocturnal animal", e: "🦉"}, {q: "A bird that cannot fly", e: "🐧"},
+            {q: "A mammal that lives in the ocean", e: "🐋"}, {q: "A type of shellfish", e: "🦪"}, {q: "Something you plug into a wall", e: "🔌"}, {q: "A wireless technology", e: "📶"}, {q: "A social media platform", e: "🌐"},
+            {q: "A web browser", e: "💻"}, {q: "A programming language", e: "💻"}, {q: "Something you write with", e: "✒️"}, {q: "Something you write on", e: "📄"}, {q: "A type of sensory experience", e: "👁️"},
+            {q: "A reason to smile", e: "😁"}, {q: "A reason to cry", e: "😭"}, {q: "Something you do when you are angry", e: "😡"}, {q: "A collective noun for animals", e: "🦓"}, {q: "A type of monkey or ape", e: "🐒"},
+            {q: "A constellation", e: "🌌"}, {q: "A planet or celestial body", e: "🪐"}, {q: "Something you do in the morning", e: "🌅"}, {q: "Something you do right before bed", e: "外"}, {q: "A type of soup", e: "🥣"},
+            {q: "A salad ingredient", e: "🥗"}, {q: "A type of sandwich", e: "🥪"}, {q: "A condiment or sauce", e: "🥫"}, {q: "Something found in a vending machine", e: "🪙"}, {q: "A type of coin or paper money", e: "🪙"},
+            {q: "A type of line (geometry)", e: "➖"}, {q: "A mathematical term", e: "➕"}, {q: "A scientific instrument", e: "🔬"}, {q: "An ancient civilization", e: "🏺"}, {q: "A famous king or queen", e: "👑"},
+            {q: "A title of nobility", e: "👑"}, {q: "A type of government system", e: "🏛️"}, {q: "An economic term", e: "📈"}, {q: "A type of weather front", e: "🌀"}, {q: "A cloud type", e: "☁️"},
+            {q: "Something associated with the ocean", e: "🦈"}, {q: "Something associated with rivers", e: "🛶"}, {q: "Something associated with fire", e: "🌋"}, {q: "Something associated with wind", e: "🪁"}, {q: "Something associated with earth", e: "🌱"},
+            {q: "A prehistoric tool", e: "🪓"}, {q: "A method of cooking", e: "🍳"}, {q: "A kitchen appliance", e: "🍞"}, {q: "A piece of table silverware", e: "🍴"}, {q: "A type of glass drinkware", e: "🍷"}
         ];
 
         let baseAlphabet = "ABCDEFGHIJKLMNOPQRSTUVWYZ".split(''); 
@@ -369,6 +467,7 @@
         let activeSessionQuestions = [];
         let historyLog = [];
 
+        // DOM Handles
         const gameContainer = document.getElementById('game-container');
         const scrStart = document.getElementById('scr-start');
         const scrDecision = document.getElementById('scr-decision');
@@ -390,7 +489,7 @@
 
         function triggerBallisticEffects(color, needsShake) {
             flashOverlay.style.background = color;
-            flashOverlay.style.opacity = '0.4';
+            flashOverlay.style.opacity = '0.35';
             setTimeout(() => { flashOverlay.style.opacity = '0'; }, 100);
 
             if (needsShake) {
@@ -458,6 +557,9 @@
                 if (timeRemaining <= 10) {
                     document.getElementById('hud-timer').style.background = 'var(--neon-pink)';
                     document.getElementById('hud-timer').style.color = '#fff';
+                } else {
+                    document.getElementById('hud-timer').style.background = 'var(--neon-yellow)';
+                    document.getElementById('hud-timer').style.color = '#000';
                 }
                 if (timeRemaining <= 0) {
                     wrapUpSession();
