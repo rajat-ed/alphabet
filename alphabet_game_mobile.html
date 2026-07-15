@@ -1,0 +1,584 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>AlphaBet Mobile Blitz</title>
+    <style>
+        :root {
+            --bg: #0b0f19;
+            --card-bg: #1e1e2f;
+            --neon-pink: #ff2a74;
+            --neon-blue: #00f0ff;
+            --neon-green: #39ff14;
+            --text: #ffffff;
+            --text-muted: #8f9cae;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            background-color: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 15px;
+            overflow: hidden;
+            position: fixed;
+            width: 100%;
+        }
+
+        .game-card {
+            background: var(--card-bg);
+            width: 100%;
+            max-width: 450px;
+            height: 85vh;
+            max-height: 700px;
+            border-radius: 24px;
+            padding: 24px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.5);
+            border: 2px solid #2d2d44;
+            position: relative;
+        }
+
+        .screen {
+            display: none;
+            flex-direction: column;
+            height: 100%;
+            justify-content: space-between;
+            width: 100%;
+        }
+
+        .screen.active {
+            display: flex;
+        }
+
+        h1 {
+            font-size: 3rem;
+            font-weight: 900;
+            text-align: center;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: var(--text);
+            margin-top: 20px;
+        }
+
+        h1 span {
+            color: var(--neon-pink);
+            text-shadow: 0 0 10px var(--neon-pink);
+        }
+
+        .hero-desc {
+            color: var(--text-muted);
+            text-align: center;
+            font-size: 1.05rem;
+            line-height: 1.6;
+            padding: 0 10px;
+        }
+
+        .letter-hero {
+            font-size: 9rem;
+            font-weight: 900;
+            color: var(--neon-blue);
+            text-shadow: 0 0 20px var(--neon-blue);
+            text-align: center;
+            line-height: 1;
+            margin: auto 0;
+        }
+
+        .hud {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #2d2d44;
+        }
+
+        .hud-stat {
+            font-size: 1.1rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .hud-stat span {
+            color: var(--neon-blue);
+        }
+
+        .timer-badge {
+            background: #ff9f00;
+            color: #000;
+            padding: 6px 16px;
+            border-radius: 50px;
+            font-weight: 800;
+            font-size: 1.2rem;
+            box-shadow: 0 0 10px rgba(255, 159, 0, 0.4);
+        }
+
+        .question-container {
+            flex-grow: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 20px 0;
+        }
+
+        .question-text {
+            font-size: 1.6rem;
+            font-weight: 700;
+            line-height: 1.4;
+            color: #fff;
+        }
+
+        .input-wrapper {
+            margin-bottom: 10px;
+        }
+
+        .mobile-input {
+            width: 100%;
+            background: #131322;
+            border: 2px solid #3d3d5c;
+            border-radius: 16px;
+            padding: 18px;
+            font-size: 1.4rem;
+            color: #fff;
+            text-align: center;
+            outline: none;
+            transition: all 0.2s ease;
+        }
+
+        .mobile-input:focus {
+            border-color: var(--neon-blue);
+            box-shadow: 0 0 15px rgba(0, 240, 255, 0.2);
+        }
+
+        .btn-stack {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            width: 100%;
+        }
+
+        .btn-row {
+            display: flex;
+            gap: 12px;
+            width: 100%;
+        }
+
+        .action-btn {
+            width: 100%;
+            padding: 18px;
+            font-size: 1.2rem;
+            font-weight: 700;
+            border: none;
+            border-radius: 16px;
+            cursor: pointer;
+            transition: transform 0.1s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .action-btn:active {
+            transform: scale(0.97);
+        }
+
+        .btn-neon-pink { background: var(--neon-pink); color: #fff; box-shadow: 0 0 15px rgba(255, 42, 116, 0.3); }
+        .btn-neon-blue { background: var(--neon-blue); color: #0b0f19; box-shadow: 0 0 15px rgba(0, 240, 255, 0.3); }
+        .btn-neon-green { background: var(--neon-green); color: #0b0f19; box-shadow: 0 0 15px rgba(57, 255, 20, 0.3); }
+        .btn-outline { background: transparent; border: 2px solid #3d3d5c; color: var(--text); }
+
+        .review-scroll {
+            background: #131322;
+            border-radius: 16px;
+            padding: 12px;
+            overflow-y: auto;
+            flex-grow: 1;
+            margin: 15px 0;
+            border: 1px solid #2d2d44;
+        }
+
+        .review-card {
+            padding: 10px;
+            border-bottom: 1px solid #2d2d44;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            font-size: 0.95rem;
+        }
+
+        .review-card:last-child { border: none; }
+        .status-correct { color: var(--neon-green); font-weight: bold; }
+        .status-wrong { color: var(--neon-pink); font-weight: bold; }
+        .status-skip { color: var(--text-muted); }
+
+        .flash-overlay {
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            border-radius: 24px;
+            pointer-events: none;
+            z-index: 10;
+            opacity: 0;
+            transition: opacity 0.15s ease;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="game-card">
+        <div id="flash" class="flash-overlay"></div>
+
+        <div id="scr-start" class="screen active">
+            <h1>Alpha<span>Bet</span></h1>
+            <p class="hero-desc">Rapid-fire vocabulary blitz. Accept a letter, or gamble it for a mystery draw—then answer as many questions as you can in 60 seconds.</p>
+            <button class="action-btn btn-neon-pink" onclick="routeToSelection()">Launch Game</button>
+        </div>
+
+        <div id="scr-decision" class="screen">
+            <h2 id="decision-header" style="text-align: center; color: var(--text-muted); font-weight: 600;">Your Offered Letter</h2>
+            <div id="big-letter" class="letter-hero">M</div>
+            <div class="btn-stack">
+                <button class="action-btn btn-neon-green" onclick="confirmLetter()">Accept Letter</button>
+                <button id="swap-action-btn" class="action-btn btn-outline" onclick="gambleLetter()">Gamble & Swap</button>
+            </div>
+        </div>
+
+        <div id="scr-play" class="screen">
+            <div class="hud">
+                <div class="hud-stat">Score: <span id="hud-score">0</span></div>
+                <div class="hud-stat">Letter: <span id="hud-letter" style="color:var(--neon-pink)">-</span></div>
+                <div id="hud-timer" class="timer-badge">60s</div>
+            </div>
+
+            <div class="question-container">
+                <div id="live-question" class="question-text">Loading question...</div>
+            </div>
+
+            <div class="input-wrapper">
+                <input type="text" id="touch-input" class="mobile-input" placeholder="Tap to type..." inputmode="text" enterkeyhint="next" autocomplete="off" autocorrect="off" autocapitalize="off">
+            </div>
+
+            <div class="btn-row">
+                <button class="action-btn btn-outline" style="width: 35%;" onclick="skipQuestion()">Skip</button>
+                <button class="action-btn btn-neon-blue" style="width: 65%;" onclick="handleMobileSubmit()">Submit</button>
+            </div>
+        </div>
+
+        <div id="scr-results" class="screen">
+            <h2 style="text-align: center; font-size: 1.8rem;">Round Over!</h2>
+            <div style="text-align: center; margin: 10px 0;">
+                <p style="color: var(--text-muted); font-size: 1rem;">Final Score with letter <strong id="summary-letter" style="color:var(--neon-blue)">-</strong></p>
+                <h3 id="summary-score" style="font-size: 3.5rem; color: var(--neon-green); font-weight: 900;">0</h3>
+            </div>
+            
+            <div id="score-log" class="review-scroll"></div>
+            
+            <button class="action-btn btn-neon-pink" onclick="resetToHome()">Play Again</button>
+        </div>
+    </div>
+
+    <script>
+        const questionsList = [
+            "A type of fruit", "A country in Europe", "An item found in a kitchen", "A profession or job", "A cold-blooded animal",
+            "Something you wear on your feet", "A capital city", "A musical instrument", "Something found in space", "A color",
+            "A language spoken somewhere in the world", "An ocean or sea", "A popular boy's name", "A popular girl's name", "A type of flower",
+            "A wild animal", "A domestic pet", "Something you find at a beach", "A school subject", "A type of vehicle",
+            "Something found in a bathroom", "An element on the periodic table", "A sport or physical game", "A piece of furniture", "A tool found in a garage",
+            "A reason for being late", "Something soft", "Something hot", "Something cold", "A spice or herb",
+            "A sharp object", "Something made of wood", "Something transparent", "A bird species", "An insect",
+            "A clothing brand", "A country in Asia", "A country in Africa", "A U.S. State", "Something you see in a hospital",
+            "A weapon", "A gemstone or crystal", "A type of tree", "Something rectangular", "Something spherical",
+            "A cartoon character", "A historical figure", "A type of fabric or textile", "A computer component", "A reason to celebrate",
+            "Something that smells good", "Something that smells bad", "An outdoor hobby", "An indoor hobby", "A mythical creature",
+            "A type of dance", "A beverage or drink", "A breakfast food", "A dessert or sweet treat", "A green vegetable",
+            "A body part", "An internal organ", "A unit of measurement", "A type of metal", "Something associated with Halloween",
+            "Something associated with Christmas", "A weather condition", "A natural disaster", "A shape", "A type of currency",
+            "Something you turn on with a switch", "A type of snake", "Something found in a library", "A type of footwear", "A dinosaur",
+            "A liquid", "A gas", "A solid", "Something that floats", "Something that sinks",
+            "A type of nut", "A grain or cereal crop", "A seafood item", "A fast food chain", "A superhero",
+            "A supervillain", "An architectural feature", "A type of boat or ship", "Something you find in a wallet", "A type of candy",
+            "A dangerous hobby", "A farm animal", "Something found in a forest", "Something found in a desert", "A type of crime",
+            "A standard school supply", "A component of a car", "A type of hat", "A famous landmark", "A dog breed",
+            "A cat breed", "Something you do at the gym", "A major world river", "A mountain or mountain range", "A type of shoes",
+            "Something with a screen", "A piece of luggage or bag", "A type of pasta", "A pizza topping", "An ingredient in a cake",
+            "A winter sport", "A summer sport", "Something you pack for a vacation", "An office supply", "A type of cheese",
+            "A fish species", "Something made of plastic", "Something made of glass", "Something made of metal", "A command you give a dog",
+            "A type of dwelling or house", "A cosmetic or makeup item", "Something you find in a garden", "A broad human emotion", "A bad habit",
+            "A good habit", "Something that makes noise", "Something completely silent", "A type of terrain", "A tourist destination",
+            "A board game", "A card game", "A video game title", "A classic book title", "A movie genre",
+            "A music genre", "Something you find in a bedroom", "Something you find in a living room", "A cleaning supply", "A type of tool",
+            "Something sticky", "Something slippery", "Something rough to the touch", "Something smooth to the touch", "A type of medicine",
+            "A medical condition or disease", "A symptom of a cold", "An insect that bites or stings", "A nocturnal animal", "A bird that cannot fly",
+            "A mammal that lives in the ocean", "A type of shellfish", "Something you plug into a wall", "A wireless technology", "A social media platform",
+            "A web browser", "A programming language", "Something you write with", "Something you write on", "A type of sensory experience",
+            "A reason to smile", "A reason to cry", "Something you do when you are angry", "A collective noun for animals", "A type of monkey or ape",
+            "A constellation", "A planet or celestial body", "Something you do in the morning", "Something you do right before bed", "A type of soup",
+            "A salad ingredient", "A type of sandwich", "A condiment or sauce", "Something found in a vending machine", "A type of coin or paper money",
+            "A type of line (geometry)", "A mathematical term", "A scientific instrument", "An ancient civilization", "A famous king or queen",
+            "A title of nobility", "A type of government system", "An economic term", "A type of weather front", "A cloud type",
+            "Something associated with the ocean", "Something associated with rivers", "Something associated with fire", "Something associated with wind", "Something associated with earth",
+            "A prehistoric tool", "A method of cooking", "A kitchen appliance", "A piece of table silverware", "A type of glass drinkware",
+            "A routine household chore", "A gardening tool", "A type of fertilizer or soil", "A pest found in houses", "Something that rots",
+            "Something that rusts", "Something that evaporates", "A property of water", "A type of biological cell", "A human hormone",
+            "A muscle in the human body", "A bone in the human body", "A type of doctor or specialist", "A medical procedure", "An emergency vehicle",
+            "Something found at a construction site", "A building material", "A type of roofing material", "A flooring type", "A paint color variation",
+            "A style of art", "A famous painter", "A musical term for speed", "A musical note or dynamic mark", "A brass instrument",
+            "A woodwind instrument", "A percussion instrument", "A stringed instrument", "A type of poem", "A literary device",
+            "A punctuation mark", "A part of speech", "A type of sentence", "A foreign phrase used in English", "A mythological god or goddess",
+            "A legendary city or place", "A monster from folklore", "A magical item", "A type of wizard or spellcaster", "A planet in our solar system",
+            "A moon of any planet", "A space mission or satellite", "An astronautical term", "A type of telescope", "A hobby involving collections",
+            "A craft hobby", "A textile art", "A type of yarn or thread", "A sewing tool", "A knot type",
+            "A type of measurement unit for weight", "A unit for distance", "A unit for volume", "A unit for electricity", "A unit for temperature",
+            "A type of angle", "A polygon shape", "A 3D geometric solid", "A term used in calculus or algebra", "A statistical term",
+            "A type of graph or chart", "A method of data collection", "A psychological term", "A human personality trait", "A defensive mechanism (psychology)",
+            "A type of phobia", "An optical illusion type", "A sleep-related phenomenon", "A type of dream element", "A sensory organ",
+            "A taste profile", "A type of smell category", "A sound frequency descriptor", "A type of lighting", "A source of renewable energy",
+            "A source of non-renewable energy", "A pollutant", "An eco-friendly practice", "A type of ecosystem", "A biome type",
+            "A desert plant", "A wetland animal", "A tundra dweller", "A rainforest predator", "A deep-sea creature",
+            "A coral reef inhabitant", "A type of algae or seaweed", "A fungus or mushroom type", "A type of bacteria", "A viral disease",
+            "A vaccination type", "A type of medication format (e.g., pill)", "A first aid item", "A component of blood", "A type of blood vessel",
+            "A layer of the skin", "A hair accessory", "A type of clothing pattern", "A style of dress", "A type of jacket or coat",
+            "A sleeve style", "A neck line style", "A shoe component", "A leather alternative", "A jewelry item",
+            "A piercing location", "A type of earring", "A necklace style", "A ring type", "A watch component",
+            "A timekeeping device", "A calendar system", "A month of the year", "A day of the week", "A season indicator",
+            "A holiday celebrated in spring", "A holiday celebrated in autumn", "A festival type", "A cultural ritual", "A type of dance performance",
+            "A theatrical term", "A part of a stage", "A lighting fixture in theater", "A type of script document", "A movie studio",
+            "A television network", "A streaming service", "A broadcast medium", "A audio equipment piece", "A microphone type",
+            "A camera accessory", "A photography style", "A type of lens", "An exposure setting", "A print medium",
+            "A journalistic term", "A newspaper section", "A magazine category", "A comic book term", "A type of paper stock",
+            "A binding method for books", "A library classification system", "A genre of fiction", "A non-fiction subgenre", "A biographical subject area",
+            "A philosophical movement", "A famous philosopher", "A logic term", "An ethical concept", "A political ideology",
+            "A structure in a city", "A municipal department", "A public service", "A emergency protocol", "A traffic control device",
+            "A type of road or highway", "A bridge design type", "A tunnel location", "A method of rail transport", "A train component",
+            "A aviation term", "An aircraft type", "An airport area", "A flight maneuver", "A nautical maneuver",
+            "A part of a sailboat", "A type of commercial ship", "A harbor structure", "A navigation tool", "A map feature",
+            "A cartographic term", "A land survey tool", "A type of rock or stone", "A mineral type", "A geological era",
+            "Fossil types", "A volcanic feature", "An earthquake term", "A plate tectonics term", "A mountain building process",
+            "A type of valley", "A river feature (e.g., waterfall)", "A coastal feature", "An island type", "A reef structure",
+            "A current in the ocean", "A wave property", "A wind pattern", "A climate zone", "A weather forecasting tool",
+            "A atmospheric gas", "A layer of the atmosphere", "A space phenomenon", "A solar feature", "A stellar evolution stage",
+            "A type of galaxy", "A cosmological theory", "A physics force", "A type of energy transformation", "A thermodynamic law term",
+            "A particle in an atom", "A quantum mechanics term", "A chemical bond type", "A chemical reaction type", "An acid or base example",
+            "A laboratory glassware item", "A safety equipment in labs", "A chemical element category", "A hydrocarbon type", "A polymer material",
+            "A type of plastic recycling code", "A manufacturing process", "An industrial machine", "A factory role", "A supply chain step",
+            "A retail term", "A type of shop or store", "A marketing strategy", "An advertising medium", "A consumer behavior term",
+            "A financial asset", "A banking term", "A type of tax", "An investment vehicle", "A stock market term",
+            "A real estate term", "A insurance type", "A legal document", "A courtroom role", "A type of law practice",
+            "A constitutional right", "A international treaty", "A diplomatic rank", "A government office", "A voting system term",
+            "A military rank", "A military vehicle", "A defensive fortification", "A strategy term", "A combat sport",
+            "A martial arts style", "A weapon category", "A target shooting sport", "An Olympic event", "A track and field event",
+            "A gymnastics apparatus", "A swimming stroke", "A water sport vessel", "A winter sport equipment", "A team sport ball",
+            "A game played on a court", "A game played on a field", "An indoor table game", "A target game", "A card suit or rank",
+            "A chess piece", "A dice game term", "A puzzle type", "A toy category", "A playground fixture",
+            "A childhood game", "A parenting term", "A family relationship", "A milestone celebration", "A wedding anniversary gift material",
+            "A cooking ingredient that thickens", "A baking leavening agent", "A sweetening agent", "A cooking oil source", "A dairy product alternative",
+            "A preservation method", "A fermentation product", "A style of breakfast egg", "A cut of meat", "A poultry type",
+            "A game meat", "A vegetable root", "A leafy green", "A nightshade vegetable", "A legume variety",
+            "A citrus fruit", "A stone fruit", "A berry type", "A tropical fruit", "A melon variety",
+            "A dried fruit", "A seed consumed as food", "A beverage prepared hot", "A cold carbonated drink", "A fermented juice beverage",
+            "A distilled beverage", "A cocktail ingredient", "A bar tool", "A cafe menu item", "A restaurant staff role",
+            "A hotel amenity", "A luggage feature", "A travel document requirement", "A transportation hub", "A souvenir item",
+            "A scenic viewpoint type", "A hiking gear item", "A camping equipment piece", "A survival skill", "A knot used in climbing",
+            "A fishing technique", "A hunting tool", "A tracking sign", "A domestic animal breed (large)", "A poultry breed",
+            "A pet care item", "A veterinary term", "An animal behavior", "A method of animal communication", "A migration destination indicator",
+            "A habitat threat", "A conservation method", "A recycling method", "A waste management term", "A renewable energy device component",
+            "A construction tool for measuring", "A fastening hardware piece", "A structural support type", "A plumbing fixture component", "An electrical wire type",
+            "A home insulation material", "A wall finish style", "A window style", "A door mechanism", "A smart home device function",
+            "A computer peripheral for input", "An output device for computers", "A storage media type", "A data transmission cable", "A networking device",
+            "A software application category", "An operating system utility", "A file format extension", "A cyber security threat", "A cryptographic term"
+        ];
+
+        let baseAlphabet = "ABCDEFGHIJKLMNOPQRSTUVWYZ".split(''); 
+        let currentSelectionLetter = '';
+        let phaseStep = 1; 
+        let countdownTimer = null;
+        let timeRemaining = 60;
+        let runningScore = 0;
+        let currentQuestionIdx = 0;
+        let activeSessionQuestions = [];
+        let historyLog = [];
+
+        const scrStart = document.getElementById('scr-start');
+        const scrDecision = document.getElementById('scr-decision');
+        const scrPlay = document.getElementById('scr-play');
+        const scrResults = document.getElementById('scr-results');
+        const flashOverlay = document.getElementById('flash');
+        const touchInput = document.getElementById('touch-input');
+
+        function navigate(targetScreen) {
+            [scrStart, scrDecision, scrPlay, scrResults].forEach(s => s.classList.remove('active'));
+            targetScreen.classList.add('active');
+        }
+
+        function triggerFlash(color) {
+            flashOverlay.style.background = color;
+            flashOverlay.style.opacity = '0.2';
+            setTimeout(() => { flashOverlay.style.opacity = '0'; }, 150);
+        }
+
+        function randomizedShuffle(arr) {
+            for (let i = arr.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [arr[i], arr[j]] = [arr[j], arr[i]];
+            }
+            return arr;
+        }
+
+        function routeToSelection() {
+            phaseStep = 1;
+            const btnSwap = document.getElementById('swap-action-btn');
+            btnSwap.style.display = 'flex';
+            document.getElementById('decision-header').textContent = "Your Offered Letter";
+            
+            currentSelectionLetter = baseAlphabet[Math.floor(Math.random() * baseAlphabet.length)];
+            document.getElementById('big-letter').textContent = currentSelectionLetter;
+            navigate(scrDecision);
+        }
+
+        function gambleLetter() {
+            if (phaseStep === 1) {
+                phaseStep = 2;
+                const filteredPool = baseAlphabet.filter(l => l !== currentSelectionLetter);
+                currentSelectionLetter = filteredPool[Math.floor(Math.random() * filteredPool.length)];
+                
+                document.getElementById('big-letter').textContent = currentSelectionLetter;
+                document.getElementById('decision-header').textContent = "Your Forced Final Letter";
+                document.getElementById('swap-action-btn').style.display = 'none';
+            }
+        }
+
+        function confirmLetter() {
+            initiateGameplayLoop(currentSelectionLetter);
+        }
+
+        function initiateGameplayLoop(chosenLetter) {
+            runningScore = 0;
+            timeRemaining = 60;
+            currentQuestionIdx = 0;
+            historyLog = [];
+            
+            document.getElementById('hud-letter').textContent = chosenLetter;
+            document.getElementById('hud-score').textContent = runningScore;
+            document.getElementById('hud-timer').textContent = timeRemaining + "s";
+            
+            activeSessionQuestions = randomizedShuffle([...questionsList]);
+            
+            navigate(scrPlay);
+            displayNextPrompt();
+            
+            touchInput.value = '';
+            setTimeout(() => touchInput.focus(), 300);
+
+            countdownTimer = setInterval(() => {
+                timeRemaining--;
+                document.getElementById('hud-timer').textContent = timeRemaining + "s";
+                if (timeRemaining <= 0) {
+                    wrapUpSession();
+                }
+            }, 1000);
+        }
+
+        function displayNextPrompt() {
+            if (currentQuestionIdx >= activeSessionQuestions.length) {
+                activeSessionQuestions = randomizedShuffle([...questionsList]);
+                currentQuestionIdx = 0;
+            }
+            document.getElementById('live-question').textContent = activeSessionQuestions[currentQuestionIdx];
+        }
+
+        touchInput.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                handleMobileSubmit();
+            }
+        });
+
+        function handleMobileSubmit() {
+            const evaluationText = touchInput.value.trim();
+            const activePrompt = activeSessionQuestions[currentQuestionIdx];
+            
+            if (evaluationText === "") {
+                skipQuestion();
+                return;
+            }
+
+            const cleanInput = evaluationText.toLowerCase();
+            const targetConstraint = currentSelectionLetter.toLowerCase();
+
+            if (cleanInput.startsWith(targetConstraint)) {
+                runningScore++;
+                document.getElementById('hud-score').textContent = runningScore;
+                triggerFlash('var(--neon-green)');
+                historyLog.push({ q: activePrompt, a: evaluationText, type: 'correct' });
+            } else {
+                triggerFlash('var(--neon-pink)');
+                historyLog.push({ q: activePrompt, a: `${evaluationText} (Must start with ${currentSelectionLetter})`, type: 'wrong' });
+            }
+
+            touchInput.value = '';
+            currentQuestionIdx++;
+            displayNextPrompt();
+            touchInput.focus();
+        }
+
+        function skipQuestion() {
+            historyLog.push({ q: activeSessionQuestions[currentQuestionIdx], a: "[Skipped]", type: 'skip' });
+            touchInput.value = '';
+            currentQuestionIdx++;
+            displayNextPrompt();
+            touchInput.focus();
+        }
+
+        function wrapUpSession() {
+            clearInterval(countdownTimer);
+            touchInput.blur();
+            
+            document.getElementById('summary-letter').textContent = currentSelectionLetter;
+            document.getElementById('summary-score').textContent = runningScore;
+            
+            const listScroller = document.getElementById('score-log');
+            listScroller.innerHTML = '';
+
+            if (historyLog.length === 0) {
+                listScroller.innerHTML = `<div style="text-align:center; padding:20px; color:var(--text-muted)">No answers attempted!</div>`;
+            } else {
+                historyLog.forEach(entry => {
+                    const row = document.createElement('div');
+                    row.className = 'review-card';
+                    
+                    let statusLabel = 'status-skip';
+                    if (entry.type === 'correct') statusLabel = 'status-correct';
+                    if (entry.type === 'wrong') statusLabel = 'status-wrong';
+
+                    row.innerHTML = `
+                        <span style="color: #fff;"><strong>Q:</strong> ${entry.q}</span>
+                        <span class="${statusLabel}"><strong>A:</strong> ${entry.a}</span>
+                    `;
+                    listScroller.appendChild(row);
+                });
+            }
+
+            navigate(scrResults);
+        }
+
+        function resetToHome() {
+            navigate(scrStart);
+        }
+    </script>
+</body>
+</html>
